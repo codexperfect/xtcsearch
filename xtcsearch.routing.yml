@@ -1,0 +1,6 @@
+xtcsearch.search:
+  path: '/xtc_search/{s}'
+  defaults:
+    _controller: '\Drupal\xtcsearch\Controller\SearchController::search'
+    _title: 'XTC Search'
+    s: '*'

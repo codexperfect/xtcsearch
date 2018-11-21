@@ -1,0 +1,6 @@
+name: "Xtended Content Search"
+type: module
+description: "Extended Content toolbox for Search."
+core: '8.x'
+package: "Xtended Content"
+dependencies: []

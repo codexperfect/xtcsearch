@@ -1,0 +1,19 @@
+{
+    "name": "drupal/xtcsearch",
+    "type": "drupal-module",
+    "description": "Extended Content toolbox for Search.",
+    "license": "GPL-2.0+",
+    "homepage": "https://www.drupal.org/project/xtcsearch",
+    "authors": [
+        {
+            "name": "Alexandre Israël",
+            "homepage": "https://www.drupal.org/u/w3wfr"
+        }
+    ],
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/xtcsearch",
+        "source": "http://cgit.drupalcode.org/xtcsearch"
+    },
+    "require": {
+    }
+}

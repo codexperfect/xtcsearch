@@ -1,0 +1,27 @@
+pager_page:
+  js:
+    js/xtc-search-page.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+    - xtcsearch/masonry
+
+pager_more:
+  js:
+    js/xtc-search-more.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+    - xtcsearch/masonry
+
+filter:
+  js:
+    js/xtc-search-filter.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+    - xtcsearch/masonry
+
+masonry:
+  js:
+    //cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js: {}

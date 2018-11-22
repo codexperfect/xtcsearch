@@ -1,8 +1,8 @@
 (function ($, Drupal) {
-  Drupal.behaviors.xtc_search = {
+
+  Drupal.behaviors.xtc_pager_more = {
     attach: function (context, settings) {
       $("#news-list-div").trigger("change");
-      // $("#page_number").trigger("change");
       var $grid = $('.gallery-wrapper').masonry({
           itemSelector: '.grid-item',
           columnWidth: '.grid-sizer',

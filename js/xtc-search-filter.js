@@ -1,17 +1,22 @@
 (function ($, Drupal, drupalSettings) {
-  var masonryIsEnabled = drupalSettings.xtc.pagination.masonry;
+  var masonryIsEnabled = drupalSettings.xtcsearch.pager.masonry;
 
-  //Uniquement page ou y a Masonry
-  function reinitializeMasonry() {
-    var $grid = $('.gallery-wrapper').masonry({
-      itemSelector: '.grid-item',
-      columnWidth: '.grid-sizer',
-      horizontalOrder: true,
-      percentPosition: true,
-      transitionDuration: 500,
-    });
-    $grid.masonry('reloadItems');
-    $grid.masonry('layout');
+  Drupal.behaviors.xtc_filter = {
+    attach: function (context, settings) {
+      // $("#filter-div").trigger("change");
+      //Uniquement page ou y a Masonry
+      var $grid = $('.gallery-wrapper').masonry({
+        itemSelector: '.grid-item',
+        columnWidth: '.grid-sizer',
+        horizontalOrder: true,
+        percentPosition: true,
+        transitionDuration: 500,
+      });
+      setTimeout(function () {
+        $grid.masonry('reloadItems');
+        $grid.masonry('layout');
+      }, 251);
+    }
   }
 
   /*
@@ -44,9 +49,9 @@
     showFilterOnPage();
   });
 
-  /* Cette fonction permet d'avoir un affichage par défaut les filtres lorsqu'on arrive sur la page 
+  /* Cette fonction permet d'avoir un affichage par défaut les filtres lorsqu'on arrive sur la page
   *  pour des écrans de taille minimale tablette
-  *  
+  *
   */
   function showFilterOnPage() {
     if ($(window).width() >= 768) {
@@ -67,14 +72,14 @@
     $("#news-elements").addClass("col-12");
 
     var sizerClass = "px-0 px-md-3 col-sm-12";
-    if(masonryIsEnabled){
+    if (masonryIsEnabled) {
       sizerClass += " col-md-6 col-lg-4";
+      refreshMasonry(sizerClass);
     }
-    else
-    {
+    else {
       sizerClass += " col-md-12 col-lg-6";
     }
-    refreshMAsonry(sizerClass);
+
   }
 
   function openFilter() {
@@ -93,10 +98,12 @@
 
     var sizerClass = "px-0 px-md-3 col-sm-12";
     sizerClass += " col-md-12 col-lg-6";
-    refreshMAsonry(sizerClass);
+    if (masonryIsEnabled) {
+      refreshMasonry(sizerClass);
+    }
   }
 
-  function refreshMAsonry(sizerClass) {
+  function refreshMasonry(sizerClass) {
     var sizer = $("#container-news-filter").find("div.grid-sizer");
     $.each(sizer, function (index, value) {
       value.className = "grid-sizer " + sizerClass;
@@ -107,15 +114,14 @@
       value.className = "grid-item " + sizerClass;
     });
 
-    setTimeout(function () {
-      reinitializeMasonry();
-    }, 251);
-
+    Drupal.behaviors.xtc_filter.attach();
   }
 
-  /*###################################################
-    #        Checkbox Control by Mr Gilles            #
-    ###################################################*/
+  /*
+  ###################################################
+  #        Checkbox Control by Mr Gilles            #
+  ###################################################
+  */
   var checked, parent, child;
 
   $('input:checkbox').click(function () {

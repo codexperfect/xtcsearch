@@ -9,16 +9,10 @@
 namespace Drupal\xtcsearch\Form;
 
 
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\AppendCommand;
-use Drupal\Core\Ajax\RemoveCommand;
-use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Drupal\csoec_common\EsService;
 use Elastica\Document;
-use JasonGrimes\Paginator;
 
 abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterface {
 
@@ -78,13 +72,22 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     'total' => 0,
     'page' => 1,
     'masonry' => TRUE,
-    'mode' => 'more', // Available: "more" or "page"
   ];
 
   /**
    * @var array
    */
   protected $filters = [];
+
+  /**
+   * @var array
+   */
+  protected $nav = [];
+
+  /**
+   * @var \Drupal\xtcsearch\PluginManager\XtcSearchPager\XtcSearchPagerPluginBase
+   */
+  protected $pager;
 
   /**
    * @var
@@ -101,11 +104,18 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   abstract protected function getSearchId();
 
   protected function init() {
-    $this->definition = \Drupal::service('plugin.manager.xtc_search')
+    $this->definition = \Drupal::service('plugin.manager.xtcsearch')
       ->getDefinition($this->getSearchId());
 
-    foreach ($this->definition['pagination'] as $name => $value) {
-      $this->pagination[$name] = $value;
+    if(!empty($this->definition['pager'])){
+      foreach ($this->definition['pager'] as $name => $value) {
+        $this->pagination[$name] = $value;
+      }
+    }
+    if(!empty($this->definition['nav'])){
+      foreach ($this->definition['nav'] as $name => $value) {
+        $this->nav[$name] = $value;
+      }
     }
     $this->filters = $this->definition['filters'];
   }
@@ -137,7 +147,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   }
 
   public function getElastica() {
-    // TODO from plugin.manager.xtc_search
+    // TODO from plugin.manager.xtcsearch
     if ($this->elastica === NULL) {
       //      $this->elastica = \Drupal::service('csoec_common.es');
       //      $this->elastica->getConnection();
@@ -156,7 +166,6 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     ) {
       $this->pagination['page'] = $request->get('page_number') ?? 1;
       $this->pagination['from'] = $this->pagination['size'] * ($this->pagination['page'] - 1);
-
       $must = [];
       foreach ($this->musts as $request) {
         if (!empty($request)) {
@@ -187,7 +196,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
 
   protected function addAggregations() {
     foreach ($this->filters as $key => $name) {
-      $type = \Drupal::service('plugin.manager.xtc_search_filter');
+      $type = \Drupal::service('plugin.manager.xtcsearch_filter');
       $filter = $type->createInstance($name);
       $filter->setForm($this);
       $filter->addAggregation();
@@ -196,7 +205,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
 
   protected function getFilters() {
     foreach ($this->filters as $key => $name) {
-      $type = \Drupal::service('plugin.manager.xtc_search_filter');
+      $type = \Drupal::service('plugin.manager.xtcsearch_filter');
       $filter = $type->createInstance($name);
       $filter->setForm($this);
       $this->form['container']['container_filters'][$filter->getPluginId()] = $filter->getFilter();
@@ -206,7 +215,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
 
   protected function getCriteria() {
     foreach ($this->filters as $key => $name) {
-      $type = \Drupal::service('plugin.manager.xtc_search_filter');
+      $type = \Drupal::service('plugin.manager.xtcsearch_filter');
       $filter = $type->createInstance($name);
       $filter->setForm($this);
       $this->musts[$filter->getPluginId()] = $filter->getRequest();
@@ -283,14 +292,13 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   }
 
   protected function getNavigation() {
-    if ($this->pagination['top_navigation'] || $this->pagination['bottom_navigation']) {
+    if (!empty($this->nav['top_navigation']) || !empty($this->nav['bottom_navigation'])) {
       $this->getNav();
     }
-
-    if ($this->pagination['top_navigation']) {
+    if (!empty($this->nav['top_navigation'])) {
       $this->getTopNavigation();
     }
-    if ($this->pagination['bottom_navigation']) {
+    if (!empty($this->nav['bottom_navigation'])) {
       $this->getBottomNavigation();
     }
   }
@@ -373,23 +381,76 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     ];
   }
 
+
   protected function getPagination() {
-    $this->form['#attached']['library'][] = 'xtcsearch/filter';
-    switch ($this->pagination['mode']) {
-      case 'more':
-        $this->form['#attached']['library'][] = 'xtcsearch/pager_more';
-        $this->paginationMore();
-        break;
-      case 'page':
-        $this->form['#attached']['library'][] = 'xtcsearch/pager_page';
-        $this->paginationPage();
-        break;
-      default:
+    $type = \Drupal::service('plugin.manager.xtcsearch_pager');
+    foreach ($this->definition['pager'] as $name => $value) {
+      $this->pagination[$name] = $value;
     }
-    $this->form['#attached']['drupalSettings']['xtc']['pagination'] = $this->pagination;
+    $this->pager = $type->createInstance($this->pagination['name']);
+
+    $this->pager->setXtcSearchForm($this);
+    foreach ($this->pagination as $name => $value){
+      $this->pager->set($name, $value);
+    }
+
+    foreach ($this->pager->getLibs() as $lib) {
+      if(!in_array($lib, $this->form['#attached']['library'])){
+        $this->form['#attached']['library'][] = $lib;
+      }
+    }
+    $this->form['#attached']['drupalSettings']['xtcsearch']['pager'] = $this->pager->getSettings();
+
+    $this->form['container']['page_number'] = [
+      '#type' => 'hidden',
+      '#value' => $this->pagination['page'],
+      '#attributes' => [
+        'id' => ['page_number'],
+      ],
+    ];
+    $this->form['container']['elements']['items']['ajax_'.$this->pager->getPluginId()] = $this->pager->getPager();
   }
 
-  protected function paginationMore() {
+  public function pagerCallback(array $form, FormStateInterface $form_state) {
+    $this->isCallback = TRUE;
+    $this->form = $form;
+
+    $this->pagination['total'] = $this->getSearch()->getTotalHits();
+    $form_state->setCached(FALSE);
+    $form_state->disableCache();
+    $this->getCallbackResults();
+    return $this->pager->callBack($this->form, $form_state);
+  }
+
+  /**
+   * @param array $form
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *
+   * @return array
+   */
+  protected function getCallbackResults(){
+    $this->searched = false;
+    $this->results = $this->getSearch()->getDocuments();
+    $this->containerElements();
+    $this->getResults();
+  }
+
+  protected function getResults(){
+    $this->preprocessResults();
+    $this->getPagination();
+    foreach ($this->results as $key => $result) {
+      if($result instanceof Document){
+        $data = $result->getData();
+        $data['id'] = $result->getId();
+        $element = [
+          '#theme' => $this->getItemsTheme(),
+          '#response' => $data,
+        ];
+        $this->form['container']['elements']['items']['results'][] = [
+          '#markup' => render($element),
+        ];
+      }
+    }
   }
 
   protected function getItems(){
@@ -439,24 +500,6 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     $this->buildEmptyResultMessage($msg_none, $msg_reset);
   }
 
-  protected function getResults(){
-    $this->preprocessResults();
-    $this->getPagination();
-    foreach ($this->results as $key => $result) {
-      if($result instanceof Document){
-        $data = $result->getData();
-        $data['id'] = $result->getId();
-        $element = [
-          '#theme' => $this->getItemsTheme(),
-          '#response' => $data,
-        ];
-        $this->form['container']['elements']['items']['results'][] = [
-          '#markup' => render($element),
-        ];
-      }
-    }
-  }
-
   protected function preprocessResults(){
   }
 
@@ -471,7 +514,6 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
       '#suffix' => '</div>',
       '#weight' => 0,
     ];
-//    return $this->form['container']['elements'];
   }
 
   /**
@@ -479,76 +521,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
    */
   abstract protected function resetLink();
 
-  public function pagerCallback(array $form, FormStateInterface $form_state) {
-    $this->isCallback = TRUE;
-//    $this->form = [];
-    $this->form = $form;
-
-    $this->pagination['total'] = $this->getSearch()->getTotalHits();
-    $form_state->setCached(FALSE);
-    $form_state->disableCache();
-//    $this->getCallbackResults($form, $form_state);
-    $this->getCallbackResults();
-//    $this->getPagination();
-
-    switch ($this->pagination['mode']) {
-      case 'more':
-        $removePagination = ($form_state->getUserInput()['page_number'] == (ceil($this->pagination['total'] / $this->pagination['size'])));
-        return $this->pagerCallbackMore($removePagination);
-        break;
-      case 'page':
-        $input = $form_state->getUserInput();
-        $this->pagination['page'] = $input['page_number'];
-        return $this->pagerCallbackPage();
-        break;
-      default:
-    }
-  }
-
   protected function getItemsTheme(){
     return 'xtc_search_item';
-  }
-
-  /**
-   * @param array $form
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *
-   * @return array
-   */
-  protected function getCallbackResults(){
-    $this->searched = false;
-    $this->results = $this->getSearch()->getDocuments();
-    $this->containerElements();
-    $this->getResults();
-  }
-
-  /**
-   * @param array $results
-   * @param bool $removePagination
-   *
-   * @return \Drupal\Core\Ajax\AjaxResponse
-   */
-//  public function pagerCallbackMore($results, $removePagination = false) {
-  public function pagerCallbackMore($removePagination = FALSE) {
-    $response = new AjaxResponse();
-//    $response->addCommand(new AppendCommand('#news-list-div', $this->form['container']['elements']['results']));
-    $response->addCommand(new AppendCommand('#all-items', $this->form['container']['elements']['items']['results']));
-
-    if ($removePagination) {
-      $response->addCommand(new RemoveCommand('#pagination'));
-    }
-    return $response;
-  }
-
-  /**
-   * @param array $results
-   *
-   * @return \Drupal\Core\Ajax\AjaxResponse
-   */
-  public function pagerCallbackPage() {
-    $response = new AjaxResponse();
-    $response->addCommand(new ReplaceCommand('#news-list-div', $this->form['container']['elements']['items']['results']));
-    return $response;
   }
 
   /**
@@ -558,140 +532,11 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     //$form_state->setLimitValidationErrors([]);
   }
 
-  protected function paginationPage(){
-    /**
-     * Es query from /
-     */
-    $this->form['container']['page_number'] = [
-      '#type' => 'hidden',
-      '#value' => $this->pagination['page'],
-      '#attributes' => [
-        'id' => ['page_number'],
-      ],
-    ];
-
-    $this->form['container']['elements']['container_pagination'] = [
-      '#prefix' => '<div class="row justify-content-center"> <nav>',
-      '#suffix' => '</nav></div>',
-      '#weight' => 100,
-    ];
-    $this->form['container']['elements']['container_pagination']['ajax_pagination'] = $this->getPager();
-  }
-
-  public function getPager() {
-//    $paginator = new SearchFormPaginator($this->pagination['total'], $this->pagination['size'], $this->pagination['page']);
-    $paginator = new Paginator($this->pagination['total'], $this->pagination['size'], $this->pagination['page']);
-    $paginator->setMaxPagesToShow(10);
-    $paginator->setNextText('Next');
-    $paginator->setPreviousText('Previous');
-//    return $paginator->toForm($this);
-    return $this->buildPager($paginator);
-  }
-
-  public function buildPager(Paginator $paginator) {
-    if ($paginator->getNumPages() <= 1) {
-      return [];
-    }
-
-    $form['pagination'] = [
-      '#prefix' => '<div id="ajax_pagination" class="pagination">',
-      '#suffix' => '</div>',
-    ];
-    if ($paginator->getPrevPage()) {
-      $form['pagination']['previous'] = [
-        '#type' => 'submit',
-        '#value' => '',
-        '#attributes' => [
-          'class' =>
-            [
-              'page-link',
-              'btn',
-            ],
-          'onclick' => 'this.form["page_number"].value = parseInt(this.form["page_number"].value) - 1; ',
-        ],
-        '#ajax' => [
-          'callback' => [$this, 'pagerCallback'],
-          'event' => 'click',
-          'progress' => [
-            'type' => 'throbber',
-            'message' => t('Chargement des résultats ') . '...',
-          ],
-        ],
-        '#limit_validation_errors' => [],
-        '#states' => [
-          'disabled' => [
-            'input[name="page_number"]' => ['value' => '1'],
-          ],
-          'visible' => [
-            'input[name="page_number"]' => ['!value' => '1'],
-          ],
-        ],
-      ];
-    }
-    foreach ($paginator->getPages() as $key => $page) {
-      $form['pagination'][$key] = [
-        '#type' => 'submit',
-        '#value' => htmlspecialchars($page['num']),
-        '#attributes' => [
-          'class' =>
-            [
-              'page-link ',
-              'btn',
-              $page['isCurrent'] ? 'active' : 'not-active',
-            ],
-          'onclick' => 'this.form["page_number"].value = this.value;',
-        ],
-        '#ajax' => [
-          'callback' => [$this, 'pagerCallback'],
-          'event' => 'click',
-          'progress' => [
-            'type' => 'throbber',
-            'message' => t('Chargement des résultats ') . '...',
-          ],
-        ],
-        '#limit_validation_errors' => [],
-        '#states' => [
-          'disabled' => [
-            'input[name="page_number"]' => ['value' => $page['num']],
-          ],
-        ],
-      ];
-//      if ($page['num'] == '...') {
-//        $form['pagination'][$key]['#attributes']['class'][] = 'hide';
-//      }
-    }
-    if ($paginator->getNextPage()) {
-      $form['pagination']['next'] = [
-        '#type' => 'submit',
-        '#value' => '',
-        '#attributes' => [
-          'class' =>
-            [
-              'page-link ',
-              'btn',
-            ],
-          'onclick' => 'this.form["page_number"].value = parseInt(this.form["page_number"].value) + 1;',
-        ],
-        '#ajax' => [
-          'callback' => [$this, 'pagerCallback'],
-          'event' => 'click',
-          'progress' => [
-            'type' => 'throbber',
-            'message' => t('Chargement des résultats ') . '...',
-          ],
-        ],
-        '#limit_validation_errors' => [],
-        '#states' => [
-          'disabled' => [
-            'input[name="page_number"]' => ['value' => $paginator->getCurrentPage()],
-          ],
-          'visible' => [
-            'input[name="page_number"]' => ['!value' => $paginator->getCurrentPage()],
-          ],
-        ],
-      ];
-    }
-    return $form['pagination'];
+  /**
+   * @return array
+   */
+  public function getForm(): array {
+    return $this->form;
   }
 
 }

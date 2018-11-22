@@ -19,4 +19,7 @@ interface XtcSearchFormInterface extends FormInterface
   function getSearch();
 
   function getElastica();
+
+  function getForm();
+
 }

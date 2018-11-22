@@ -3,15 +3,12 @@ pager_page:
     js/xtc-search-page.js: {}
   dependencies:
     - core/jquery
-    - core/drupalSettings
-    - xtcsearch/masonry
 
 pager_more:
   js:
     js/xtc-search-more.js: {}
   dependencies:
     - core/jquery
-    - core/drupalSettings
     - xtcsearch/masonry
 
 filter:

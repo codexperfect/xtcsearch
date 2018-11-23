@@ -21,4 +21,7 @@ filter:
 
 masonry:
   js:
+    js/xtc-search-masonry.js: {}
     //cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js: {}
+  dependencies:
+    - core/jquery

@@ -103,8 +103,7 @@ abstract class XtcSearchPagerPluginBase extends PluginBase
   abstract protected function getLibraries():array ;
 
   protected function loadLibraries(){
-    $libraries[] = 'xtcsearch/filter';
-    $this->libs = array_merge($libraries, $this->getLibraries());
+    $this->libs = $this->getLibraries();
   }
 
   /**

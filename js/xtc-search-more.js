@@ -3,16 +3,6 @@
   Drupal.behaviors.xtc_pager_more = {
     attach: function (context, settings) {
       $("#news-list-div").trigger("change");
-      var $grid = $('.gallery-wrapper').masonry({
-          itemSelector: '.grid-item',
-          columnWidth: '.grid-sizer',
-          horizontalOrder: true,
-          percentPosition: true,
-          transitionDuration: 500,
-        }
-      );
-      $grid.masonry('reloadItems');
-      $grid.masonry('layout');
 
       var sizerClass = "px-0 px-md-3 col-sm-12";
       if ($("#filter-button").hasClass("filter-button-active")) {
@@ -33,11 +23,9 @@
         value.className = "grid-item " + sizerClass;
       });
 
-      setTimeout(function () {
-        $grid.masonry('reloadItems');
-        $grid.masonry('layout');
-      }, 251);
-
+      Drupal.behaviors.xtc_masonry.attach();
     }
   }
+
+
 })(jQuery, Drupal);

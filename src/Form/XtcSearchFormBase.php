@@ -12,6 +12,7 @@ namespace Drupal\xtcsearch\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterBase;
 use Elastica\Document;
 
 abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterface {
@@ -136,6 +137,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
 
     $this->getCriteria();
     $this->getSearch();
+//    $suggestions = $this->search->getSuggests();
 
     $this->getFilters();
     $this->getFilterButton();
@@ -210,6 +212,11 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
       $filter->setForm($this);
       $this->form['container']['container_filters'][$filter->getPluginId()] = $filter->getFilter();
       $this->form['container']['container_filters'][$filter->getPluginId()]['#weight'] = $key;
+
+      foreach ($filter->getLibs() as $lib) {
+        $this->form['#attached']['library'][] = $lib;
+      }
+      $this->form['#attached']['drupalSettings']['xtcsearch']['pager'] = $this->pagination;
     }
   }
 
@@ -395,11 +402,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     }
 
     foreach ($this->pager->getLibs() as $lib) {
-      if(!in_array($lib, $this->form['#attached']['library'])){
-        $this->form['#attached']['library'][] = $lib;
-      }
+      $this->form['#attached']['library'][] = $lib;
     }
-    $this->form['#attached']['drupalSettings']['xtcsearch']['pager'] = $this->pager->getSettings();
 
     $this->form['container']['page_number'] = [
       '#type' => 'hidden',
@@ -539,4 +543,9 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     return $this->form;
   }
 
+  protected function loadFilter($name) : XtcSearchFilterBase{
+    $type = \Drupal::service('plugin.manager.xtcsearch_filter');
+    return $type->createInstance($name);
+
+  }
 }

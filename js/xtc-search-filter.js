@@ -3,19 +3,6 @@
 
   Drupal.behaviors.xtc_filter = {
     attach: function (context, settings) {
-      // $("#filter-div").trigger("change");
-      //Uniquement page ou y a Masonry
-      var $grid = $('.gallery-wrapper').masonry({
-        itemSelector: '.grid-item',
-        columnWidth: '.grid-sizer',
-        horizontalOrder: true,
-        percentPosition: true,
-        transitionDuration: 500,
-      });
-      setTimeout(function () {
-        $grid.masonry('reloadItems');
-        $grid.masonry('layout');
-      }, 251);
     }
   }
 
@@ -114,7 +101,7 @@
       value.className = "grid-item " + sizerClass;
     });
 
-    Drupal.behaviors.xtc_filter.attach();
+    Drupal.behaviors.xtc_masonry.attach();
   }
 
   /*
@@ -122,6 +109,7 @@
   #        Checkbox Control by Mr Gilles            #
   ###################################################
   */
+
   var checked, parent, child;
 
   $('input:checkbox').click(function () {

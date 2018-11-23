@@ -22,6 +22,8 @@ interface XtcSearchFilterInterface extends PluginInspectionInterface
 
   function getTitle();
 
+  function getFieldName();
+
   function getRequest();
 
   function getFilter();

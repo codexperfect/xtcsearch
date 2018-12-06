@@ -11,6 +11,12 @@ pager_more:
     - core/jquery
     - xtcsearch/masonry
 
+checkbox:
+  js:
+    js/xtc-search-checkbox.js: {}
+  dependencies:
+    - core/jquery
+
 filter:
   js:
     js/xtc-search-filter.js: {}

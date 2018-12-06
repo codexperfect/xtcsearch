@@ -4,6 +4,7 @@ namespace Drupal\xtcsearch\PluginManager\XtcSearchPager;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\xtcsearch\Form\XtcSearchFormInterface;
 
 /**
@@ -72,6 +73,7 @@ abstract class XtcSearchPagerPluginBase extends PluginBase
   }
 
   public function getPager(){
+    $this->initPageNumber();
     $this->buildPager();
     return $this->pager;
   }
@@ -113,5 +115,8 @@ abstract class XtcSearchPagerPluginBase extends PluginBase
     $this->xtcSearchForm = $xtcSearchForm;
   }
 
+  public function callBack(array $form, FormStateInterface $form_state) {
+    // TODO: Implement callBack() method.
+  }
 
 }

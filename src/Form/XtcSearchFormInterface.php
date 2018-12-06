@@ -22,4 +22,6 @@ interface XtcSearchFormInterface extends FormInterface
 
   function getForm();
 
+  function getRouteName();
+
 }

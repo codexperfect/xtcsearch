@@ -12,6 +12,9 @@ pager_more:
     - xtcsearch/masonry
 
 checkbox:
+  css:
+    component:
+      css/xtc-search-checkbox.css: {}
   js:
     js/xtc-search-checkbox.js: {}
   dependencies:
@@ -24,6 +27,7 @@ filter:
     - core/jquery
     - core/drupalSettings
     - xtcsearch/masonry
+    - xtcsearch/checkbox
 
 masonry:
   js:

@@ -95,7 +95,7 @@ abstract class XtcSearchFilterBase extends PluginBase implements XtcSearchFilter
     if(!empty($options)){
       foreach ($options as $key => $option){
         $this->itemName = $this->pluginId.'_'.$option['type'].'_'.$option['machineName'];
-        $element[$this->itemName] = [
+        $element[$this->itemName . $option['suffix']] = [
           '#type' => 'container',
           '#weight' => $key,
           '#name' => $this->getFieldName(),
@@ -119,13 +119,13 @@ abstract class XtcSearchFilterBase extends PluginBase implements XtcSearchFilter
     if(empty($level['visible'])) {
       $element = $this->buildHidenLevel($level);
     }
-    $element[$this->itemName] = $this->buildLevel($level);
+    $element[$this->itemName . $level['suffix']] = $this->buildLevel($level);
 
     if(!empty($level['children'])){
       $this->parentName = $this->itemName;
       foreach ($level['children'] as $child){
         if($child['level'] > 1) {
-          $element[$this->itemName . '_options'] = $this->buildLastLevel($level);
+          $element[$this->itemName . $child['suffix']] = $this->buildLastLevel($level);
         }
       }
     }
@@ -134,17 +134,19 @@ abstract class XtcSearchFilterBase extends PluginBase implements XtcSearchFilter
 
   protected function buildLevel($level){
     $element = [
-      '#type' => 'checkboxes',
+      '#type' => 'xtc_checkboxes',
     ];
-    $element['#attributes']['class'] = ['float-right'];
     $element['#attributes']['data-parent'] = 'parent_' . $level['key'];
     $element['#options'] = [$level['name'] => $level['label']];
-    $element['#name'] = $this->itemName;
+    $element['#name'] = $this->itemName . $level['suffix'];
     $element['#weight'] = $this->weight($level['key'], $level['level']);
     foreach ($this->getDefault() as $default) {
       if(in_array($level['name'], $this->getDefault())){
         $element['#default_value'][] = $default;
       }
+    }
+    if(empty($level['children'])){
+      $element['#attributes']['class'] = ['form-group'];
     }
     return $element;
 
@@ -152,14 +154,13 @@ abstract class XtcSearchFilterBase extends PluginBase implements XtcSearchFilter
 
   protected function buildLastLevel($level){
     $element = [
-      '#type' => 'checkboxes',
+      '#type' => 'xtc_checkboxes',
     ];
-    if(is_int($level['parent_id'])){
-      $element['#attributes']['data-child'] = 'parent_'.$level['parent_id'];
-    }
+    $element['#attributes']['data-child'] = 'parent_'.$level['key'];
     $element['#options'] = $this->getOptionsFromChildren($level['children']);
-    $element['#name'] = $this->itemName.'_options';
+    $element['#name'] = $this->itemName . $this->getAggregations()[$level['level']+1]['suffix'];
     $element['#weight'] = $this->weight($level['key'], $level['level']+1);
+    $element['#attributes']['class'] = ['form-group'];
 
     foreach ($this->getDefault() as $default) {
       if(in_array($default, array_flip($element['#options']))){
@@ -254,7 +255,6 @@ abstract class XtcSearchFilterBase extends PluginBase implements XtcSearchFilter
   protected function getLibraries():array {
     return [
       'xtcsearch/filter',
-//      'xtcsearch/checkbox',
     ];
   }
 
@@ -315,7 +315,6 @@ abstract class XtcSearchFilterBase extends PluginBase implements XtcSearchFilter
       $search = $this->form->getSearch();
       $name = $this->getAggregations()[0]['name'];
       if(!empty($search->getAggregation($name))){
-//        return $search->getAggregation($name)['buckets'];
         return $search->getAggregation($name);
       }
     }
@@ -355,9 +354,11 @@ abstract class XtcSearchFilterBase extends PluginBase implements XtcSearchFilter
     $next = $this->getAggregations()[$level+1]['name'] ?? null;
     $item = [
       'level' => $level,
-      'key' => $key,
+      'key' => $this->titleId($key, $current['parent_id']),
       'type' => $type,
       'visible' => $this->getAggregations()[$level]['visible'],
+      'prefix'  => $this->getAggregations()[$level]['prefix'],
+      'suffix'  => $this->getAggregations()[$level]['suffix'],
     ];
     $item = array_merge($item, $current);
 
@@ -377,6 +378,10 @@ abstract class XtcSearchFilterBase extends PluginBase implements XtcSearchFilter
     if(!empty($item)){
       return $item;
     }
+  }
+
+  protected function titleId($value, $parent = ''){
+    return (empty($parent)) ? ($value +1): $parent .'-'. ($value +1);
   }
 
   static protected function transliterate($phrase){

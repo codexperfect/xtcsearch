@@ -149,7 +149,6 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     $this->getItems();
     $this->getNavigation();
 
-//    dump($this->form);
     return $this->form;
   }
 
@@ -469,11 +468,9 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     $this->getPagination();
     foreach ($this->results as $key => $result) {
       if($result instanceof Document){
-//        $data = $result->getData();
         $result->id = $result->getId();
         $element = [
           '#theme' => $this->getItemsTheme(),
-//          '#response' => $data,
           '#response' => $result,
         ];
         $this->form['container']['elements']['items']['results'][] = [
@@ -576,20 +573,21 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   }
 
   protected function submitQueryString(array &$form, FormStateInterface $form_state){
-//    dump("SUBMIT");
     $input = $form_state->getUserInput();
+
+    // Fulltext search
     $queryString['s'] = $input['s'] ?? '*';
+
+    // Filters
     foreach ($this->filters as $name){
       $filter = $this->loadFilter($name);
       $queryString[$name] = $filter->toQueryString($input);
     }
-//    dump($queryString);
-//    die();
 
+    // Pager
     $request = \Drupal::request();
     $query = $request->query->all();
     unset($query['page_number']);
-
     if($query == $queryString){
       $queryString['page_number'] = ('pagerCallback' == $form_state->getTriggeringElement()['#ajax']['callback'][1])
         ? $form_state->getTriggeringElement()['#value']
@@ -606,10 +604,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-//    dump($form_state);
     $queryString = $this->submitQueryString($form, $form_state);
-//    dump($queryString);
-
     $request = \Drupal::request();
     $url = Url::fromRoute(
       $request->get("_route"),

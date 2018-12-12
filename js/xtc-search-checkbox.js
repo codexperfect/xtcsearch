@@ -1,66 +1,77 @@
 (function ($, Drupal) {
   var checked, parent, child;
 
-  $('input:checkbox').click(function () {
-    checked = $(this).is(':checked');
-    parent = $(this).data('parent');
-    child = $(this).data('child');
-    checkOrUncheckInput(checked, parent, child);
-  });
+  Drupal.behaviors.xtc_checkbox = {
+    attach: function (context, settings) {
+      $('input:checkbox').click(function () {
+        checked = $(this).is(':checked');
+        parent = $(this).data('parent');
+        child = $(this).data('child');
+        checkOrUncheckInput(checked, parent, child);
+      });
 
-  function checkOrUncheckInput(checked, parent, child) {
-    //cas du cochage du checkbox
-    if (checked) {
-      //Lorsqu'on a coché un checkox parent , on cose tous ses fils
-      checkInput(parent, child);
-    }
-    else { //cas du décochage du checkbox
-      //Lorsqu'on a décoché un checkox parent , on décoche tous ses fils
-      uncheckedInput(parent, child);
-    }
-  }
-
-  function checkInput(parent, child) {
-    //Lorsqu'on a coché un checkox parent , on cose tous ses fils
-    if (typeof parent !== typeof undefined && parent !== false) {
-      var dataChild = "[data-child=" + parent + "]";
-      var dataParent = "[data-parent=" + parent + "]";
-      $(dataParent).prop("checked", true);
-      $(dataChild).prop("checked", true);
-      if ($(dataChild).length > 0) {
-        $(dataParent).attr('type', 'hidden');
-      }
-    }
-    else {
-      if (typeof child !== typeof undefined && child !== false) {
-        var dataParent = "[data-parent=" + child + "]";
-        var dataChild = "[data-child=" + child + "]";
-        $(dataParent).prop("checked", false);
-        if ($(dataChild).length == $(dataChild + ':checked').length) {
-          $(dataParent).prop("checked", true);
-          $(dataParent).attr('type', 'hidden');
+      function checkOrUncheckInput(checked, parent, child) {
+        //cas du cochage du checkbox
+        if (checked) {
+          //Lorsqu'on a coché un checkox parent , on coche tous ses fils
+          checkInput(parent, child);
         }
-
+        else { //cas du décochage du checkbox
+          //Lorsqu'on a décoché un checkox parent , on décoche tous ses fils
+          uncheckedInput(parent, child);
+        }
       }
-    }
-    if ($(dataChild).length > 0) {
-      $(dataParent).attr("disabled", "disabled");
-    }
-  }
 
-  function uncheckedInput(parent, child) {
-    if (typeof parent !== typeof undefined && parent !== false) {
-      var dataChild = "[data-child=" + parent + "]";
-      var dataParent = "[data-parent=" + parent + "]";
-      $(dataParent).prop("checked", false);
-      $(dataChild).prop("checked", false);
-    }
-    else {
-      if (typeof child !== typeof undefined && child !== false) {
-        var dataParent = "[data-parent=" + child + "]";
-        $(dataParent).prop("checked", false);
-        $(dataParent).removeAttr("disabled");
-        $(dataParent).attr('type', 'checkbox');
+      function checkInput(parent, child) {
+        //Lorsqu'on a coché un checkox parent , on coche tous ses fils
+        if (typeof parent !== typeof undefined && parent !== false) {
+          // updateParent(parent);
+          checkAllChildren(parent);
+        }
+        if (typeof child !== typeof undefined && child !== false) {
+          updateParent(child);
+        }
+      }
+
+      function uncheckedInput(parent, child) {
+        var dataParent = "[data-parent=" + parent + "]";
+        if (typeof parent !== typeof undefined && parent !== false) {
+          // updateParent(parent);
+          $(dataParent).removeClass('partial');
+          uncheckAllChildren(parent);
+        }
+        if (typeof child !== typeof undefined && child !== false) {
+          updateParent(child);
+        }
+      }
+
+      function updateParent(id) {
+        var dataChild = "[data-child=" + id + "]";
+        var dataParent = "[data-parent=" + id + "]";
+        if (0 == $(dataChild + ':checked').length) {
+          $(dataParent).prop("checked", false);
+          $(dataParent).removeClass('partial');
+        }
+        else{
+          if ($(dataChild).length == $(dataChild + ':checked').length) {
+            $(dataParent).prop("checked", true);
+            $(dataParent).removeClass('partial');
+          }
+          if ($(dataChild).length > $(dataChild + ':checked').length) {
+            $(dataParent).prop("checked", false);
+            $(dataParent).addClass('partial');
+          }
+        }
+      }
+
+      function checkAllChildren(id) {
+        var dataChild = "[data-child=" + id + "]";
+        $(dataChild).prop("checked", true);
+      }
+
+      function uncheckAllChildren(id) {
+        var dataChild = "[data-child=" + id + "]";
+        $(dataChild).prop("checked", false);
       }
     }
   }
@@ -70,7 +81,7 @@
     var child = false;
     var checked = $(this).is(':checked');
     if (checked) {
-      //Lorsqu'on a coché un checkbox parent , on cose tous ses fils
+      //Lorsqu'on a coché un checkbox parent , on coche tous ses fils
       checkInput(parent, child);
     }
   });
@@ -80,7 +91,7 @@
     var parent = false;
     var checked = $(this).is(':checked');
     if (checked) {
-      //Lorsqu'on a coché un checkbox enfant , on cose son parent
+      //Lorsqu'on a coché un checkbox enfant , on coche son parent
       checkInput(parent, child);
     }
   });

@@ -26,12 +26,4 @@ class XtcSearchForm extends XtcSearchFormBase
     return Url::fromRoute('xtcsearch.search')->toString();
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    $url = Url::fromRoute('xtcsearch.search', ['s' => '*']);
-    $form_state->setRedirectUrl($url);
-  }
-
 }

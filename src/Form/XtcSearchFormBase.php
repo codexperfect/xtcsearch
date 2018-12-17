@@ -12,7 +12,7 @@ namespace Drupal\xtcsearch\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterBase;
+use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 use Drupal\xtcsearch\PluginManager\XtcSearchPager\XtcSearchPagerPluginBase;
 use Elastica\Document;
 
@@ -152,6 +152,9 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     return $this->form;
   }
 
+  /**
+   * @return |null
+   */
   public function getElastica() {
     // TODO from plugin.manager.xtcsearch
     if ($this->elastica === NULL) {
@@ -212,39 +215,31 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
 
   protected function addAggregations() {
     foreach ($this->filters as $key => $name) {
-      $type = \Drupal::service('plugin.manager.xtcsearch_filter');
-      $filter = $type->createInstance($name);
+      $filter = $this->loadFilter($name);
       $filter->setForm($this);
-//      $filter->addIterativeAggregation();
       $filter->addAggregation();
     }
   }
 
   protected function getFilters() {
     foreach ($this->filters as $key => $name) {
-      $type = \Drupal::service('plugin.manager.xtcsearch_filter');
-      $filter = $type->createInstance($name);
+      $filter = $this->loadFilter($name);
       $filter->setForm($this);
-//      dump($filter->getPluginId());
       $this->form['container']['container_filters'][$filter->getPluginId()] = $filter->getFilter();
       $this->form['container']['container_filters'][$filter->getPluginId()]['#weight'] = $key;
-//      dump($this->form);
 
       foreach ($filter->getLibs() as $lib) {
         $this->form['#attached']['library'][] = $lib;
       }
       $this->form['#attached']['drupalSettings']['xtcsearch']['pager'] = $this->pagination;
     }
-//    dump($this->form);
   }
 
   protected function getCriteria() {
     foreach ($this->filters as $key => $name) {
-      $type = \Drupal::service('plugin.manager.xtcsearch_filter');
-      $filter = $type->createInstance($name);
+      $filter = $this->loadFilter($name);
       $filter->setForm($this);
       $this->musts[$filter->getPluginId()] = $filter->getRequest();
-//      dump($this->musts);
     }
   }
 
@@ -259,7 +254,6 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
             'btn-dark',
             'filter-submit',
           ],
-//        'onclick' => 'this.form["page_number"].value = 1;',
       ],
       '#prefix' => '<div class="col-12 mt-3"> <div class="form-group text-right">',
       '#suffix' => '</div> </div>',
@@ -572,11 +566,16 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     return $this->form;
   }
 
+  protected function preprocessQueryString(array &$queryString){
+  }
+
   protected function submitQueryString(array &$form, FormStateInterface $form_state){
     $input = $form_state->getUserInput();
 
     // Fulltext search
-    $queryString['s'] = $input['s'] ?? '*';
+    if($this->definition['fulltext']){
+      $queryString['s'] = $input['s'] ?? '*';
+    }
 
     // Filters
     foreach ($this->filters as $name){
@@ -605,6 +604,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $queryString = $this->submitQueryString($form, $form_state);
+    $this->preprocessQueryString($queryString);
     $request = \Drupal::request();
     $url = Url::fromRoute(
       $request->get("_route"),
@@ -613,8 +613,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     $form_state->setRedirectUrl($url);
   }
 
-  protected function loadFilter($name) : XtcSearchFilterBase{
-    $type = \Drupal::service('plugin.manager.xtcsearch_filter');
+  protected function loadFilter($name) : XtcSearchFilterTypePluginBase{
+    $type = \Drupal::service('plugin.manager.xtcsearch_filter_type');
     return $type->createInstance($name);
 
   }

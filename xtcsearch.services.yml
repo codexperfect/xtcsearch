@@ -3,10 +3,14 @@ services:
     class: Drupal\xtcsearch\PluginManager\XtcSearch\XtcSearchPluginManager
     arguments: ['@module_handler', '@cache.discovery']
 
-  plugin.manager.xtcsearch_filter:
-    class: Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterManager
-    parent: default_plugin_manager
-
   plugin.manager.xtcsearch_pager:
     class: Drupal\xtcsearch\PluginManager\XtcSearchPager\XtcSearchPagerPluginManager
     parent: default_plugin_manager
+
+  plugin.manager.xtcsearch_filter_type:
+    class: Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginManager
+    parent: default_plugin_manager
+
+  plugin.manager.xtcsearch_filter:
+    class: Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcsearchFilterPluginManager
+    arguments: ['@module_handler', '@cache.discovery']

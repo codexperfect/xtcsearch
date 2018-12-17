@@ -1,19 +1,18 @@
 <?php
 
-namespace Drupal\xtcsearch\PluginManager\XtcSearchFilter;
+namespace Drupal\xtcsearch\PluginManager\XtcSearchFilterType;
 
-use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Plugin\DefaultPluginManager;
 
 /**
- * Provides the XTC Search Filter plugin manager.
+ * XtcSearchFilterType plugin manager.
  */
-class XtcSearchFilterManager extends DefaultPluginManager {
-
+class XtcSearchFilterTypePluginManager extends DefaultPluginManager {
 
   /**
-   * Constructs a new XtcSearchFilterManager object.
+   * Constructs XtcSearchFilterTypePluginManager object.
    *
    * @param \Traversable $namespaces
    *   An object that implements \Traversable which contains the root paths
@@ -25,14 +24,14 @@ class XtcSearchFilterManager extends DefaultPluginManager {
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler) {
     parent::__construct(
-      'Plugin/XtcSearchFilter',
+      'Plugin/XtcSearchFilterType',
       $namespaces,
       $module_handler,
-      'Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterInterface',
-      'Drupal\xtcsearch\Annotation\XtcSearchFilter');
-
-    $this->alterInfo('xtcsearch_filter_info');
-    $this->setCacheBackend($cache_backend, 'xtcsearch_filter_plugins');
+      'Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypeInterface',
+      'Drupal\xtcsearch\Annotation\XtcSearchFilterType'
+    );
+    $this->alterInfo('xtcsearch_filter_type_info');
+    $this->setCacheBackend($cache_backend, 'xtcsearch_filter_type_plugins');
   }
 
 }

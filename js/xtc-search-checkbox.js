@@ -3,6 +3,26 @@
 
   Drupal.behaviors.xtc_checkbox = {
     attach: function (context, settings) {
+      $("[data-parent]").each(function (i, o) {
+        var parent = $(this).attr('data-parent');
+        var child = false;
+        var checked = $(this).is(':checked');
+        if (checked) {
+          //Lorsqu'on a coché un checkbox parent , on coche tous ses fils
+          checkInput(parent, child);
+        }
+      });
+
+      $("[data-child]").each(function (i, o) {
+        var child = $(this).attr('data-child');
+        var parent = false;
+        var checked = $(this).is(':checked');
+        if (checked) {
+          //Lorsqu'on a coché un checkbox enfant , on coche son parent
+          checkInput(parent, child);
+        }
+      });
+
       $('input:checkbox').click(function () {
         checked = $(this).is(':checked');
         parent = $(this).data('parent');
@@ -76,23 +96,6 @@
     }
   }
 
-  $("[data-parent]").each(function (i, o) {
-    var parent = $(this).attr('data-parent');
-    var child = false;
-    var checked = $(this).is(':checked');
-    if (checked) {
-      //Lorsqu'on a coché un checkbox parent , on coche tous ses fils
-      checkInput(parent, child);
-    }
-  });
+  Drupal.behaviors.xtc_checkbox.attach();
 
-  $("[data-child]").each(function (i, o) {
-    var child = $(this).attr('data-child');
-    var parent = false;
-    var checked = $(this).is(':checked');
-    if (checked) {
-      //Lorsqu'on a coché un checkbox enfant , on coche son parent
-      checkInput(parent, child);
-    }
-  });
 })(jQuery, Drupal);

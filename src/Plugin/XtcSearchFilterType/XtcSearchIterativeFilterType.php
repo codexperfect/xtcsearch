@@ -94,7 +94,6 @@ abstract class XtcSearchIterativeFilterType extends XtcSearchFilterTypePluginBas
     return $element;
   }
 
-
   protected function buildLevel($level){
     $element = [
       '#type' => 'xtc_checkboxes',
@@ -138,7 +137,7 @@ abstract class XtcSearchIterativeFilterType extends XtcSearchFilterTypePluginBas
     $element['#attributes']['data-child'] = 'parent_'.$level['key'];
     $element['#options'] = $this->getOptionsFromChildren($level['children']);
     $element['#name'] = $this->itemName . $this->getAggregations()[$level['level']+1]['suffix'];
-    $element['#weight'] = $this->weight($level['key'], $level['level']+1);
+    $element['#weight'] = $this->weight($level['eid'], $level['level']+1);
     $element['#attributes']['class'] = ['form-group'];
 
     foreach ($this->getDefault() as $values) {
@@ -154,7 +153,7 @@ abstract class XtcSearchIterativeFilterType extends XtcSearchFilterTypePluginBas
   protected function buildHidenLevel($level){
     $element = [
       '#type' => 'container',
-      '#weight' =>  $this->weight($level['key'], $level['level']),
+      '#weight' =>  $this->weight($level['eid'], $level['level']),
       '#name' => $this->getFieldName(),
     ];
     return $element;

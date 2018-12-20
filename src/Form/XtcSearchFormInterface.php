@@ -10,18 +10,25 @@ namespace Drupal\xtcsearch\Form;
 
 
 use Drupal\Core\Form\FormInterface;
+use Elastica\Client;
+use Elastica\Query;
+use Elastica\ResultSet;
 
 interface XtcSearchFormInterface extends FormInterface
 {
   /**
    * @return \Elastica\ResultSet
    */
-  function getSearch();
+  function getResultSet() : ResultSet;
 
-  function getElastica();
+  function getElastica() : Client;
 
-  function getForm();
+  function getForm() : array;
 
   function getRouteName();
+
+  function searchRoute();
+
+  function getQuery() : Query;
 
 }

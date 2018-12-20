@@ -3,14 +3,24 @@
 namespace Drupal\xtcsearch\Plugin\XtcSearchFilterType;
 
 
+use Drupal\Component\Serialization\Json;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 
 /**
- * Plugin implementation of the xtcsearch_filter_type.
+ * Plugin implementation of the es_filter.
  *
+ * @XtcSearchFilterType(
+ *   id = "iterativeCheckbox",
+ *   label = @Translation("Iterative Checkbox"),
+ *   description = @Translation("Iterative Checkbox filter."),
+ * )
  */
-abstract class XtcSearchIterativeFilterType extends XtcSearchFilterTypePluginBase
+class XtcSearchIterativeCheckboxFilterType extends XtcSearchFilterTypePluginBase
 {
+
+  protected function getAggregations() {
+    return $this->getParams()['aggregations'];
+  }
 
   public function getFilter(){
     $options = $this->getOptions();
@@ -19,9 +29,10 @@ abstract class XtcSearchIterativeFilterType extends XtcSearchFilterTypePluginBas
       '#type' => 'fieldset',
     ];
 
+    $prefix = $this->getFilterId().'_';
     if(!empty($options)){
       foreach ($options as $key => $option){
-        $this->itemName = $this->pluginId.'_'.$option['type'].'_'.$option['machineName'];
+        $this->itemName = $prefix.$option['type'].'_'.$option['machineName'];
         $element[$this->itemName . $option['suffix']] = [
           '#type' => 'container',
           '#weight' => $key,
@@ -31,7 +42,7 @@ abstract class XtcSearchIterativeFilterType extends XtcSearchFilterTypePluginBas
         $parentName = $this->itemName;
         foreach ($option['children'] as $id => $child) {
           $child['eid'] = $id;
-          $this->itemName = $this->pluginId.'_'.$child['type'].'_'.$child['machineName'];
+          $this->itemName = $prefix.$child['type'].'_'.$child['machineName'];
           $element[$parentName][$child['type'].'_'.$child['machineName']] = $this->iterateLevels($child);
         }
       }
@@ -102,7 +113,8 @@ abstract class XtcSearchIterativeFilterType extends XtcSearchFilterTypePluginBas
     $element['#options'] = [$level['name'] => $level['label']];
     $element['#name'] = $this->itemName . $level['suffix'];
     $element['#weight'] = $this->weight($level['eid'], $level['level']);
-    if($default = array_flip($this->getDefault()[$level['type']])){
+    if(!empty($this->getDefault()[$level['type']])
+      && $default = array_flip($this->getDefault()[$level['type']])){
       $element['#default_value'][] = $level['value'];
     }
     if(empty($level['children'])){
@@ -140,10 +152,12 @@ abstract class XtcSearchIterativeFilterType extends XtcSearchFilterTypePluginBas
     $element['#weight'] = $this->weight($level['eid'], $level['level']+1);
     $element['#attributes']['class'] = ['form-group'];
 
-    foreach ($this->getDefault() as $values) {
-      foreach ($values as $value) {
-        if(key_exists($value, $element['#options'])){
-        $element['#default_value'][] = $value;
+    if(!empty($this->getDefault())){
+      foreach ($this->getDefault() as $values) {
+        foreach ($values as $value) {
+          if(key_exists($value, $element['#options'])){
+            $element['#default_value'][] = $value;
+          }
         }
       }
     }
@@ -195,6 +209,66 @@ abstract class XtcSearchIterativeFilterType extends XtcSearchFilterTypePluginBas
       $current['value'] = $newName;
       return $current;
     }
+  }
+
+  public function getRequest(){
+    $request = \Drupal::request();
+    $must = [];
+    if(!empty($request->get($this->getFilterId())) ) {
+      if (!is_array($request->get($this->getFilterId()))) {
+        $filterRequest = $this->getDefault();
+        foreach($filterRequest as $key => $request){
+          $values[$key] = array_values($request);
+        }
+      }
+      else {
+        $values = array_values($request->get($this->getFilterId()));
+      }
+    }
+    if(!empty($values) ){
+      foreach ($values as $field => $items) {
+        foreach($items as $key => $item){
+          $must['bool']['should'][0][$key] = ['term' => [$field => $item]];
+        }
+      }
+    }
+    return $must;
+  }
+
+  public function toQueryString($input) {
+    $aggs = $this->getAggregations();
+    foreach($aggs as $keyAgg => $agg) {
+      $selected = [];
+      $pattern = '/'.$this->getFilterId() . $agg['prefix'] . '.*' . $agg['suffix'].'/';
+      if(!empty($agg['visible'])) {
+        $level[$keyAgg] = $agg['field'];
+      }
+
+      foreach($input as $key => $items) {
+        if(preg_match($pattern, $key)) {
+          $selected[$key] = [
+            'field' => $agg['field'],
+            'values' => $input[$key],
+          ];
+        }
+      }
+
+      $value = [];
+      foreach($selected as $key => $items){
+        // TODO: Traiter le nommage des variables d'après les préfixes
+        if($this->getFilterId() == explode('_', $key)[0]
+           && !empty($items)
+           && is_array($items)
+        ){
+          $item = array_flip(array_values($items['values']));
+          if(!empty($item)){
+            $value = array_merge($value, array_flip($item));
+          }
+        }
+        $values[$items['field']] = $value;
+      }
+    }
+    return Json::encode($values);
   }
 
 }

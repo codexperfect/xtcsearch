@@ -6,6 +6,7 @@ use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Serialization\Json;
 use Drupal\xtc\XtendedContent\API\Config;
 use Drupal\xtcsearch\Form\XtcSearchFormInterface;
+use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcsearchFilterDefault;
 use Elastica\Aggregation\Terms;
 
 /**
@@ -31,11 +32,16 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
 
   protected $itemName;
 
+  /**
+   * @var XtcsearchFilterDefault
+   */
+  protected $filter;
 
   public function __construct(array $configuration, $plugin_id, $plugin_definition) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->loadLibraries();
   }
+
 
   /**
    * {@inheritdoc}
@@ -45,20 +51,43 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
     return (string) $this->pluginDefinition['label'];
   }
 
+  /**
+   * @param XtcsearchFilterDefault $filter
+   */
+  public function setFilter(XtcsearchFilterDefault $filter) : void {
+    $this->filter = $filter;
+  }
+
   public function getFieldName() {
-    return $this->getPluginId();
+    return $this->filter->getFieldName();
+  }
+
+  public function getFilterId() {
+    return $this->filter->getPluginId();
+  }
+
+  public function getTitle() {
+    return $this->filter->getTitle();
+  }
+
+  public function getPlaceholder() {
+    return $this->filter->getPlaceholder();
+  }
+
+  public function getParams() {
+    return $this->filter->getParams();
   }
 
   public function getRequest(){
     $request = \Drupal::request();
     $must = [];
-    if(!empty($request->get($this->getPluginId())) ) {
-      if (!is_array($request->get($this->getPluginId()))) {
-        $filterRequest = Json::decode($request->get($this->getPluginId()));
+    if(!empty($request->get($this->getFilterId())) ) {
+      if (!is_array($request->get($this->getFilterId()))) {
+        $filterRequest = $this->getDefault();
         $values = array_values($filterRequest);
       }
       else {
-        $values = array_values($request->get($this->getPluginId()));
+        $values = array_values($request->get($this->getFilterId()));
       }
     }
     if(!empty($values) ){
@@ -93,11 +122,11 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
   }
 
   public function getDefault() {
-    return Json::decode(\Drupal::request()->get($this->getPluginId()));
+    return Json::decode(\Drupal::request()->get($this->getFilterId()));
   }
 
   public function toQueryString($input) {
-    $value = $input[$this->getPluginId()];
+    $value = $input[$this->getFilterId()];
     if(!empty($value && is_array($value))){
       $value = array_flip(array_flip(array_values($value)));
     }
@@ -155,16 +184,14 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
           }
         }
       }
-
-      $this->form->getElastica()
-                 ->getQuery()
-                 ->addAggregation($aggregations[0]);
+      $this->form->getQuery()
+        ->addAggregation($aggregations[0]);
     }
   }
 
   public function getAggregationBuckets() {
     if(!empty($this->form) && $this->form instanceof XtcSearchFormInterface) {
-      $search = $this->form->getSearch();
+      $search = $this->form->getResultSet();
       $name = $this->getAggregations()[0]['name'];
       if(!empty($search->getAggregation($name))){
         return $search->getAggregation($name);
@@ -172,6 +199,13 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
     }
     return null;
 
+  }
+
+  public function hasSuggest() {
+    return false;
+  }
+
+  public function initSuggest(){
   }
 
   protected function buildCurrent($current, $level = 0, $id = 0) {

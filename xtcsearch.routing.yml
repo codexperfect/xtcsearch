@@ -1,6 +1,11 @@
 xtcsearch.search:
-  path: '/xtc_search/{s}'
+  path: '/xtc_search'
   defaults:
     _controller: '\Drupal\xtcsearch\Controller\SearchController::search'
     _title: 'XTC Search'
-    s: '*'
+
+xtcsearch.autocomplete:
+  path: '/xtc_search/autocomplete/{field_name}/{count}'
+  defaults:
+    _controller: '\Drupal\xtcsearch\Controller\SearchController::handleAutocomplete'
+    _format: json

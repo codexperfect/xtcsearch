@@ -26,22 +26,26 @@ function xtcsearch_help($route_name, RouteMatchInterface $route_match) {
 
       return $output;
   }
-
-  /**
-   * Implements hook_theme().
-   */
-  function xtcsearch_theme() {
-    return [
-      'xtc_search_item' => [
-        'variables' =>  [
-          'response' => NULL,
-        ],
-        'template' => 'xtc-search-item',
-      ],
-    ];
-  }
-
 }
 
+/**
+ * Implements hook_theme().
 
-
+ */
+function xtcsearch_theme($existing, $type, $theme, $path) {
+  return [
+    'xtc_search_item' => [
+      'variables' => [
+        'response' => null,
+      ],
+      'template' => 'xtc-search-item',
+    ],
+    'xtc_search_form' => [
+      'variables' => [
+        'response' => null,
+        'form' => null,
+      ],
+      'template' => 'xtc-search',
+    ],
+  ];
+}

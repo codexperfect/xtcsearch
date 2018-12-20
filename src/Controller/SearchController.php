@@ -11,6 +11,8 @@ namespace Drupal\xtcsearch\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\xtcsearch\Form\XtcSearchForm;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class SearchController extends ControllerBase
 {
@@ -28,6 +30,29 @@ class SearchController extends ControllerBase
       '#response' => ['headline' => $this->getTitle()],
       '#form_events' => $form,
     ];
+  }
+
+  /**
+   * Handler for autocomplete request.
+   */
+  public function handleAutocomplete(Request $request, $field_name, $count) {
+    $input = $request->query->get('q');
+    $this->elastic = \Drupal::service('csoec_common.es');
+    $search = $this->elastic->getConnection()
+                            ->setIndex('contenu,document,publication')
+                            ->addSuggest($input);
+    $options = $search->getSuggests()['my-suggest-all'][0]['options'];
+
+    $results = [];
+    // Get the typed string from the URL, if it exists.
+    for ($i = 0; $i < count($options); $i++) {
+      $results[] = [
+        'value' => '"' . $options[$i]['text'] . '"',
+        'label' => '"' . $options[$i]['text'] . '"',
+      ];
+    }
+
+    return new JsonResponse($results);
   }
 
   public function getTitle() {

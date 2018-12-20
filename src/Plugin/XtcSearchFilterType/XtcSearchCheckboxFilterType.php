@@ -6,10 +6,15 @@ namespace Drupal\xtcsearch\Plugin\XtcSearchFilterType;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 
 /**
- * Plugin implementation of the xtcsearch_filter_type.
+ * Plugin implementation of the es_filter.
  *
+ * @XtcSearchFilterType(
+ *   id = "checkbox",
+ *   label = @Translation("Checkbox"),
+ *   description = @Translation("Checkbox filter."),
+ * )
  */
-abstract class XtcSearchCheckboxFilterType extends XtcSearchFilterTypePluginBase
+class XtcSearchCheckboxFilterType extends XtcSearchFilterTypePluginBase
 {
 
   public function getFilter(){

@@ -6,10 +6,15 @@ namespace Drupal\xtcsearch\Plugin\XtcSearchFilterType;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 
 /**
- * Plugin implementation of the xtcsearch_filter_type.
+ * Plugin implementation of the es_filter.
  *
+ * @XtcSearchFilterType(
+ *   id = "select",
+ *   label = @Translation("Select"),
+ *   description = @Translation("Select filter."),
+ * )
  */
-abstract class XtcSearchSelectFilterType extends XtcSearchFilterTypePluginBase
+class XtcSearchSelectFilterType extends XtcSearchFilterTypePluginBase
 {
 
   public function getFilter(){

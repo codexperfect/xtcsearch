@@ -11,10 +11,17 @@ namespace Drupal\xtcsearch\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 use Drupal\xtcsearch\PluginManager\XtcSearchPager\XtcSearchPagerPluginBase;
+use Elastica\Client;
 use Elastica\Document;
+use Elastica\Index;
+use Elastica\Query;
+use Elastica\ResultSet;
+use Elastica\Search;
+use Elastica\Type;
 
 abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterface {
 
@@ -46,14 +53,24 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   /**
    * @var array
    */
+  protected $suggests;
+
+  /**
+   * @var array
+   */
   protected $musts_not;
 
   protected $results;
 
   /**
-   * @var \Elastica\ResultSet
+   * @var \Elastica\Search
    */
   protected $search;
+
+  /**
+   * @var \Elastica\ResultSet
+   */
+  protected $resultSet;
 
   protected $searched = FALSE;
 
@@ -84,6 +101,11 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
    */
   protected $filters = [];
 
+//  /**
+//   * @var array
+//   */
+//  protected $mainFilters = [];
+
   /**
    * @var array
    */
@@ -95,9 +117,14 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   protected $pager;
 
   /**
-   * @var
+   * @var Client
    */
-  public $elastica;
+  protected $elastica;
+
+  /**
+   * @var Query
+   */
+  protected $query;
 
   /**
    * {@inheritdoc}
@@ -112,6 +139,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     $this->definition = \Drupal::service('plugin.manager.xtcsearch')
       ->getDefinition($this->getSearchId());
 
+    $this->filters = $this->definition['filters'];
+//    $this->mainFilters = $this->definition['mainfilters'];
     if(!empty($this->definition['pager'])){
       foreach ($this->definition['pager'] as $name => $value) {
         $this->pagination[$name] = $value;
@@ -122,7 +151,10 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
         $this->nav[$name] = $value;
       }
     }
-    $this->filters = $this->definition['filters'];
+
+    $this->initElastica();
+    $this->query = New Query();
+    $this->search = New Search($this->elastica);
   }
 
   /**
@@ -140,11 +172,12 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     $this->getContainers();
 
     $this->getCriteria();
-    $this->getSearch();
-//    $suggestions = $this->search->getSuggests();
+    $this->getResultSet();
 
+//    $this->getMainfilters();
     $this->getFilters();
     $this->getFilterButton();
+    $this->getHeaderButton();
 
     $this->getItems();
     $this->getNavigation();
@@ -152,81 +185,97 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     return $this->form;
   }
 
-  /**
-   * @return |null
-   */
-  public function getElastica() {
-    // TODO from plugin.manager.xtcsearch
-    if ($this->elastica === NULL) {
-      //      $this->elastica = \Drupal::service('csoec_common.es');
-      //      $this->elastica->getConnection();
-      return NULL;
+  protected function initElastica() {
+    $serverName = $this->definition['server'];
+    $settings = Settings::get('csoec.serve_client')['xtc']['serve_client']['server'];
+    if(!empty($settings[$serverName]['env'])){
+      $env = $settings[$serverName]['env'];
     }
+
+    $server = \Drupal::service('plugin.manager.xtc_server')->getDefinition($serverName);
+    $connection = [
+      'host' => $server['connection'][$env]['host'],
+      'port' => $server['connection'][$env]['port'],
+    ];
+    $this->elastica = New Client($connection);
+  }
+
+  /**
+   * @return \Elastica\Client
+   */
+  public function getElastica() : Client {
     return $this->elastica;
   }
 
   /**
-   * @return \Elastica\ResultSet
+   * @return \Elastica\Query
    */
-  public function getSearch() {
-    $request = \Drupal::request();
-    if (empty($this->search)
-      || !$this->searched
-    ) {
-      $this->pagination['page'] = (!empty($request->get('page_number'))) ? $request->get('page_number') : 1;
-      $this->pagination['from'] = $this->pagination['size'] * ($this->pagination['page'] - 1);
-      $must = [];
-      foreach ($this->musts as $request) {
-        if (!empty($request)) {
-          $must['query']['bool']['must'][] = $request;
+  public function getQuery() : Query {
+    return $this->query;
+  }
+
+  protected function buildQuery() {
+    $must = [];
+    foreach ($this->musts as $request) {
+      if (!empty($request)) {
+        $must['query']['bool']['must'][] = $request;
+      }
+    }
+    $this->query->setRawQuery($must);
+
+    $this->setIndices();
+    $this->setFrom();
+    $this->setSize();
+    return $this;
+  }
+
+  protected function buildSuggest(){
+    if(!empty($this->suggests)){
+      $suggest = [];
+      foreach ($this->suggests as $pluginName => $suggestion) {
+        if (!empty($suggestion)) {
+          $suggest = array_merge($suggest, $suggestion);
         }
       }
-
-      $this->getElastica()
-        ->setRawQuery($must)
-        ->setIndex(implode(',', $this->definition['index']))
-        ->setType($this->definition['type'])
-        ->setFrom($this->pagination['from'])
-        ->setSize($this->pagination['size']);
-
-      $this->searchSort();
-      $this->addAggregations();
-      $this->search = $this->getElastica()->search();
-
-      $this->pagination['total'] = $this->search->getTotalHits();
-      $this->results = $this->search->getDocuments();
-      $this->searched = TRUE;
-    }
-
-    return $this->search;
-  }
-
-  protected function searchSort(){
-    if(!empty($this->definition['sort']['field'])
-      && !empty($this->definition['sort']['dir'])
-    ){
-      $this->getElastica()
-        ->setSort(
-          $this->definition['sort']['field'],
-          $this->definition['sort']['dir']
-        );
+      $this->query->setParam('suggest', ['suggest' => $suggest]);
     }
   }
 
-  protected function addAggregations() {
-    foreach ($this->filters as $key => $name) {
-      $filter = $this->loadFilter($name);
-      $filter->setForm($this);
-      $filter->addAggregation();
+  protected function setIndices(){
+    foreach($this->definition['index'] as $indexName){
+      $index = New Index($this->elastica, $indexName);
+      $this->buildType($index);
+      $this->search->addIndex($index);
     }
+
+  }
+
+  /**
+   * @param \Elastica\Index $index
+   *
+   * @return \Elastica\Type
+   */
+  protected function buildType(Index $index){
+    return New Type($index, $this->definition['type']);
+  }
+
+  protected function setFrom(){
+    $this->query->setParam('from', $this->pagination['from']);
+  }
+
+  protected function setSize(){
+    $this->query->setParam('size', $this->pagination['size']);
   }
 
   protected function getFilters() {
-    foreach ($this->filters as $key => $name) {
+    $weight = 0;
+    foreach ($this->filters as $name => $container) {
+      $weight++;
       $filter = $this->loadFilter($name);
       $filter->setForm($this);
-      $this->form['container']['container_filters'][$filter->getPluginId()] = $filter->getFilter();
-      $this->form['container']['container_filters'][$filter->getPluginId()]['#weight'] = $key;
+      $this->form['container']['container_'.$container][$filter->getFilterId()] =
+        $filter->getFilter();
+      $this->form['container']['container_'.$container][$filter->getFilterId()]['#weight'] = $weight;
 
       foreach ($filter->getLibs() as $lib) {
         $this->form['#attached']['library'][] = $lib;
@@ -235,17 +284,63 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     }
   }
 
-  protected function getCriteria() {
-    foreach ($this->filters as $key => $name) {
+  /**
+   * @return \Elastica\ResultSet
+   */
+  public function getResultSet() : ResultSet{
+    $request = \Drupal::request();
+    if (empty($this->resultSet)
+      || !$this->searched
+    ) {
+      $this->pagination['page'] = (!empty($request->get('page_number'))) ? $request->get('page_number') : 1;
+      $this->pagination['from'] = $this->pagination['size'] * ($this->pagination['page'] - 1);
+
+      $this->buildQuery();
+      $this->searchSort();
+      $this->buildSuggest();
+      $this->addAggregations();
+
+      $this->resultSet = $this->search->search($this->query);
+
+      $this->pagination['total'] = $this->resultSet->getTotalHits();
+      $this->results = $this->resultSet->getDocuments();
+      $this->searched = TRUE;
+    }
+
+    return $this->resultSet;
+  }
+
+  protected function searchSort(){
+    if(!empty($this->definition['sort']['field'])
+      && !empty($this->definition['sort']['dir'])
+    ){
+      $sortArgs = [$this->definition['sort']['field'] => $this->definition['sort']['dir']];
+      $this->query->setSort($sortArgs);
+    }
+  }
+
+  protected function addAggregations() {
+    foreach ($this->filters as $name => $container) {
       $filter = $this->loadFilter($name);
       $filter->setForm($this);
-      $this->musts[$filter->getPluginId()] = $filter->getRequest();
+      $filter->addAggregation();
+    }
+  }
+
+  protected function getCriteria() {
+    foreach ($this->filters as $name => $container) {
+      $filter = $this->loadFilter($name);
+      $filter->setForm($this);
+      $this->musts[$filter->getFilterId()] = $filter->getRequest();
+      if($filter->hasSuggest()){
+        $this->suggests[$filter->getFilterId()] = $filter->initSuggest();
+      }
     }
   }
 
   protected function getFilterButton() {
-    $this->form['container']['container_filters']['filtrer'] = [
-      '#type' => 'submit', //onclick on this one: page reset to 0
+    $filterElement = [
+      '#type' => 'submit',
       '#value' => $this->t('Filtrer'),
       '#attributes' => [
         'class' =>
@@ -257,7 +352,23 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
       ],
       '#prefix' => '<div class="col-12 mt-3"> <div class="form-group text-right">',
       '#suffix' => '</div> </div>',
-      '#weight' => '3',
+    ];
+
+    $this->form['container']['container_sidebar']['filter_bottom'] =
+      $filterElement;
+    $this->form['container']['container_sidebar']['filter_bottom']['#weight'] = 100;
+
+    $this->form['container']['container_sidebar']['buttons']['filter_top'] =
+      $filterElement;
+    $this->form['container']['container_sidebar']['buttons']['filter_top']['#weight'] = -100;
+    $this->form['container']['container_sidebar']['buttons']['filter_top']['#prefix'] = '<div class="col-6"> <div class="form-group text-left">';
+  }
+
+  protected function getHeaderButton() {
+    $this->form['container']['container_header']['total'] = [
+      '#type' => 'item',
+      '#markup' => '<div id="total"> ' . $this->pagination['total'] . t(' Résultat(s)') . '</div>',
+      '#weight' => '2',
     ];
   }
 
@@ -268,18 +379,28 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     ];
 
     $this->containerElements();
-    $this->containerFilters();
+    $this->containerHeader();
+    $this->containerSidebar();
   }
 
-  protected function containerFilters() {
-    $this->form['container']['container_filters'] = [
+  protected function containerHeader() {
+    $this->form['container']['container_header'] = [
+      '#prefix' => '<div id="mainfilter-div" class="col-12 mainfilter-div pt-3"> <div class="row">',
+      '#suffix' => '</div> </div>',
+      '#weight' => -10,
+    ];
+  }
+
+  protected function containerSidebar() {
+    $containerName = 'container_sidebar';
+    $this->form['container'][$containerName] = [
       '#prefix' => '<div id="filter-div" class="order-1 order-md-2 mb-4 mb-md-0 col-12 col-md-4">
           <div class="row mr-md-0 h-100">
             <div class="col-12 filter-div pt-3">',
       '#suffix' => '</div> </div> </div>',
       '#weight' => 1,
     ];
-    $this->form['container']['container_filters']['hide'] = [
+    $this->form['container'][$containerName]['hide'] = [
       '#type' => 'button',
       '#value' => $this->t('Cacher les filtres'),
       '#weight' => '-1',
@@ -294,7 +415,11 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
       '#prefix' => '<div class="col-12 mt-3 mb-3 d-block d-md-none"> <div class="text-center text-sm-right d-block">',
       '#suffix' => '</div> </div>',
     ];
-    $this->form['container']['container_filters']['reset'] = [
+    $this->form['container'][$containerName]['buttons'] = [
+      '#prefix' => '<div class="row col-12 mt-3 pr-md-0">',
+      '#suffix' => '</div>',
+    ];
+    $this->form['container'][$containerName]['buttons']['reset'] = [
       '#type' => 'button',
       '#value' => $this->t('Réinitialiser'),
       '#weight' => '0',
@@ -306,7 +431,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
           ],
         'onclick' => 'window.location = "' . $this->resetLink() . '"; return false;',
       ],
-      '#prefix' => '<div class="col-12 text-right">',
+      '#prefix' => '<div class="col-6 text-right mt-1 pr-md-0">',
       '#suffix' => '</div>',
     ];
   }
@@ -436,7 +561,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     $this->isCallback = TRUE;
     $this->form = $form;
 
-    $this->pagination['total'] = $this->getSearch()->getTotalHits();
+    $this->pagination['total'] = $this->getResultSet()->getTotalHits();
 
     $form_state->setCached(FALSE);
     $form_state->disableCache();
@@ -452,7 +577,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
    */
   protected function getCallbackResults(){
     $this->searched = false;
-    $this->results = $this->getSearch()->getDocuments();
+    $this->results = $this->getResultSet()->getDocuments();
     $this->containerElements();
     $this->getResults();
   }
@@ -548,6 +673,11 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     return Url::fromRoute($this->getRouteName())->toString();
   }
 
+  public function searchRoute(){
+    return Url::fromRoute($this->getRouteName())
+               ->toString();
+  }
+
   protected function getItemsTheme(){
     return 'xtc_search_item';
   }
@@ -572,13 +702,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   protected function submitQueryString(array &$form, FormStateInterface $form_state){
     $input = $form_state->getUserInput();
 
-    // Fulltext search
-    if($this->definition['fulltext']){
-      $queryString['s'] = $input['s'] ?? '*';
-    }
-
     // Filters
-    foreach ($this->filters as $name){
+    foreach ($this->filters as $name => $container) {
       $filter = $this->loadFilter($name);
       $queryString[$name] = $filter->toQueryString($input);
     }
@@ -605,17 +730,17 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $queryString = $this->submitQueryString($form, $form_state);
     $this->preprocessQueryString($queryString);
-    $request = \Drupal::request();
     $url = Url::fromRoute(
-      $request->get("_route"),
+      $this->getRouteName(),
       $queryString
     );
     $form_state->setRedirectUrl($url);
   }
 
   protected function loadFilter($name) : XtcSearchFilterTypePluginBase{
-    $type = \Drupal::service('plugin.manager.xtcsearch_filter_type');
-    return $type->createInstance($name);
+    $filters = \Drupal::service('plugin.manager.xtcsearch_filter');
+    $filter = $filters->createInstance($name);
+    return $filter->getFilter();
 
   }
 }

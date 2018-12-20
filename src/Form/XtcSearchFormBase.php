@@ -679,7 +679,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   }
 
   protected function getItemsTheme(){
-    return 'xtc_search_item';
+    return $this->definition['itemsTheme'] ?? 'xtc_search_item';
+//    return 'xtc_search_item';
   }
 
   /**

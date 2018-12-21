@@ -4,6 +4,7 @@ namespace Drupal\xtcsearch\Plugin\XtcSearchFilterType;
 
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Url;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 
 /**
@@ -42,49 +43,45 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
 //      '#prefix' => '<div class="col-md-10 text-right">',
 //      '#suffix' => '</div>',
     ];
+    return $filter;
+
+  }
+
+  public function getSuggest(){
     if($this->hasSuggest()){
       $suggestions = $this->form->getResultSet()->getSuggests();
 
-//      foreach ($suggestions['completion'][0]['options'] as $key => $value) {
-//        $options = ['absolute' => TRUE];
-//        $url = Url::fromRoute('csoec_search.csoec_main_search_form', ['s' => '"' . urlencode($value['text']) . '"'], $options);
-//        if (strtolower($value['text']) != strtolower($this->query_string)) {
-//          $suggestionsList[] = [
-//            '#type' => 'link',
-//            '#title' => $value['text'],
-//            '#url' => $url,
-//            '#prefix' => '<p class="suggestion-retour-meta float-left">',
-//            '#suffix' => '</p>',
-//          ];
-//        }
-//      }
-//      if (count($suggestionsList)) {
-//        $form['container']['suggestions'] = [
-//          '#type' => 'inline_template',
-//          '#weight' => '1',
-//          '#template' => '<div class="col-12 py-20"> <div class="row m-0"> <div class="col-lg-12"> <p class="h3-dossier"> {% trans %} Suggestion de recherche {% endtrans %} :</p> </div> </div>
-//                        <div class="row m-0"> <div class="col-lg-12"> {{suggesstions}}</div> </div> </div>',
-//          '#context' => [
-//            'suggesstions' => $suggestionsList,
-//          ],
-//        ];
-//      }
+      foreach($suggestions as $suggestion){
+        if(!empty($suggestion[0]['options'])){
+          foreach ($suggestion[0]['options'] as $key => $value) {
+            $text = '"' . strtolower($value['text']) . '"';
+            $url = Url::fromRoute($this->form->getRouteName(), [$this->getPluginId() =>
+              urlencode($text)]);
+            $suggestionsList[] = [
+              '#type' => 'link',
+              '#title' => $value['text'],
+              '#url' => $url,
+              '#prefix' => '<p class="suggestion-retour-meta float-left">',
+              '#suffix' => '</p>',
+            ];
+//          if (strtolower($value['text']) != strtolower($this->query_string)) {
+//          }
+          }
+        }
+      }
 
-
-
-      $suggestionsList = [];
-      $filter['suggest'] = [
+//      $filter['suggest'] = [
+      $suggest = [
         '#type' => 'inline_template',
         '#weight' => '1',
-        '#template' => '<div class="col-12 py-20"> <div class="row m-0"> <div class="col-lg-12"> <p class="h3-dossier"> {% trans %} Suggestion de recherche {% endtrans %} :</p> </div> </div> 
-                      <div class="row m-0"> <div class="col-lg-12"> {{suggesstions}}</div> </div> </div>',
+        '#template' => '<div class="col-12 py-20"> <div class="row m-0"> <div class="col-lg-12"> <p class="h3-dossier">Suggestion de recherche :</p> </div> </div> 
+                      <div class="row m-0"> <div class="col-lg-12"> {{ suggestions }}</div> </div> </div>',
         '#context' => [
-          'suggesstions' => $suggestionsList,
+          'suggestions' => $suggestionsList,
         ],
       ];
     }
-    return $filter;
-
+    return $suggest;
   }
 
   public function getRequest(){
@@ -100,8 +97,8 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
   }
 
   public function hasSuggest() {
-//    return true;
-    return false;
+    return true;
+//    return false;
   }
 
   public function initSuggest(){
@@ -129,11 +126,7 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
         ],
       ];
     }
-
-//    $this->query->setParam('suggest', $suggest);
-
-
-
+    return [];
   }
 
   public function toQueryString($input) {

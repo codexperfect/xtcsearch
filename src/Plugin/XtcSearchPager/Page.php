@@ -49,7 +49,7 @@ class Page extends XtcSearchPagerPluginBase
     $query = $request->query->all();
     if($previous = $this->paginator->getPrevPage()){
       $query['page_number'] = $this->paginator->getPrevPage();
-      $link = Url::fromRoute($request->get("_route"), $query)
+      $link = Url::fromRoute($this->getRouteName(), $query)
         ->toString();
       $form['prev'] = [
         '#type' => 'submit',
@@ -80,7 +80,7 @@ class Page extends XtcSearchPagerPluginBase
       if ($page['num'] == '...' && $key > ($this->paginator->getMaxPagesToShow()/2)){
         $query['page_number'] = $this->paginator->getCurrentPage() + $this->paginator->getMaxPagesToShow() -2;
       }
-      $link = Url::fromRoute($request->get("_route"), $query)
+      $link = Url::fromRoute($this->getRouteName(), $query)
         ->toString();
       $form[$key] = [
         '#type' => 'submit',
@@ -104,7 +104,7 @@ class Page extends XtcSearchPagerPluginBase
     }
     if($next = $this->paginator->getNextPage()){
       $query['page_number'] = $this->paginator->getNextPage();
-      $link = Url::fromRoute($request->get("_route"), $query)
+      $link = Url::fromRoute($this->getRouteName(), $query)
         ->toString();
       $form['next'] = [
         '#type' => 'submit',

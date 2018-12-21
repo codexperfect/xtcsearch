@@ -122,7 +122,9 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
   }
 
   public function getDefault() {
-    return Json::decode(\Drupal::request()->get($this->getFilterId()));
+    if(!empty(\Drupal::request()->get($this->getFilterId()))){
+      return Json::decode(\Drupal::request()->get($this->getFilterId()));
+    }
   }
 
   public function toQueryString($input) {
@@ -206,6 +208,9 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
   }
 
   public function initSuggest(){
+  }
+
+  public function getSuggest(){
   }
 
   protected function buildCurrent($current, $level = 0, $id = 0) {

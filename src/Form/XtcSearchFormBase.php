@@ -13,6 +13,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
+use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcsearchFilterDefault;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 use Drupal\xtcsearch\PluginManager\XtcSearchPager\XtcSearchPagerPluginBase;
 use Elastica\Client;
@@ -284,6 +285,11 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
       $this->form['container']['container_'.$container][$filter->getFilterId()] =
         $filter->getFilter();
       $this->form['container']['container_'.$container][$filter->getFilterId()]['#weight'] = $weight;
+
+      if($filter->hasSuggest()){
+        $this->form['container']['container_'.$container][$filter->getFilterId().'_suggest'] = $filter->getSuggest();
+        $this->form['container']['container_'.$container][$filter->getFilterId().'_suggest']['#weight'] = $weight;
+      }
 
       foreach ($filter->getLibs() as $lib) {
         $this->form['#attached']['library'][] = $lib;
@@ -748,10 +754,21 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     $form_state->setRedirectUrl($url);
   }
 
-  protected function loadFilter($name) : XtcSearchFilterTypePluginBase{
-    $filters = \Drupal::service('plugin.manager.xtcsearch_filter');
-    $filter = $filters->createInstance($name);
-    return $filter->getFilter();
+//  protected function loadFilter($name) : XtcSearchFilterTypePluginBase{
+//    $filters = \Drupal::service('plugin.manager.xtcsearch_filter');
+//    $filter = $filters->createInstance($name);
+//    return $filter->getFilter();
+//  }
 
+  protected function loadFilter($name) : XtcSearchFilterTypePluginBase{
+    $filter = $this->getFilter($name);
+    return $filter->getFilterType();
   }
+
+  protected function getFilter($name) : XtcsearchFilterDefault{
+    $filters = \Drupal::service('plugin.manager.xtcsearch_filter');
+    return  $filters->createInstance($name);
+  }
+
+
 }

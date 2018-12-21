@@ -35,7 +35,7 @@ class XtcsearchFilterDefault extends PluginBase implements XtcsearchFilterInterf
     $this->filter->setFilter($this);
   }
 
-  public function getFilter() : XtcSearchFilterTypePluginBase{
+  public function getFilterType() : XtcSearchFilterTypePluginBase{
     return $this->filter;
   }
 

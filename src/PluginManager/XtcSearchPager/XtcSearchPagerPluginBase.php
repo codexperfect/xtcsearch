@@ -78,6 +78,10 @@ abstract class XtcSearchPagerPluginBase extends PluginBase
     return $this->pager;
   }
 
+  protected function getRouteName(){
+    return $this->xtcSearchForm->getRouteName();
+  }
+
   public function getLibs(){
     return $this->libs;
   }

@@ -25,7 +25,9 @@
     }
   }
 
-  showFilterOnPage();
+  $("#filter-div").ready(function () {
+    showFilterOnPage();
+  });
 
   $(window).resize(function () {
     showFilterOnPage();

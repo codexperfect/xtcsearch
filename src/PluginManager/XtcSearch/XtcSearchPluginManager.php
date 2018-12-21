@@ -20,8 +20,8 @@ use Drupal\Core\Plugin\Factory\ContainerFactory;
  *     description: STRING
  * @endcode
  *
- * @see \Drupal\xtcsearch\XtcSearchDefault
- * @see \Drupal\xtcsearch\XtcSearchInterface
+ * @see \Drupal\xtcsearch\PluginManager\XtcSearch\XtcSearchDefault
+ * @see \Drupal\xtcsearch\PluginManager\XtcSearch\XtcSearchInterface
  * @see plugin_api
  */
 class XtcSearchPluginManager extends DefaultPluginManager {
@@ -37,7 +37,7 @@ class XtcSearchPluginManager extends DefaultPluginManager {
     // The xtc_search description.
     'description' => '',
     // Default plugin class.
-    'class' => 'Drupal\xtcsearch\XtcSearchDefault',
+    'class' => 'Drupal\xtcsearch\PluginManager\XtcSearch\XtcSearchDefault',
   ];
 
   /**

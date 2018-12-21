@@ -126,6 +126,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
    */
   protected $query;
 
+
   /**
    * {@inheritdoc}
    */
@@ -133,11 +134,18 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     return $this->getSearchId() . '_form';
   }
 
-  abstract protected function getSearchId();
+  public function __construct(array $definition){
+    $this->definition = $definition;
+  }
+
+//  abstract protected function getSearchId();
+  protected function getSearchId(){
+    return $this->definition['pluginId'];
+  }
 
   protected function init() {
-    $this->definition = \Drupal::service('plugin.manager.xtcsearch')
-      ->getDefinition($this->getSearchId());
+//    $this->definition = \Drupal::service('plugin.manager.xtcsearch')
+//      ->getDefinition($this->getSearchId());
 
     $this->filters = $this->definition['filters'];
 //    $this->mainFilters = $this->definition['mainfilters'];
@@ -366,7 +374,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
 
   protected function getHeaderButton() {
     $this->form['container']['container_header']['total'] = [
-      '#type' => 'item',
+//      '#type' => 'item',
+      '#type' => 'xtctotal',
       '#markup' => '<div id="total"> ' . $this->pagination['total'] . t(' Résultat(s)') . '</div>',
       '#weight' => '2',
     ];
@@ -663,14 +672,15 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   }
 
   public function getRouteName(){
-    return 'xtcsearch.search';
+    return $this->definition['routeName'];
   }
 
   /**
    * @return \Drupal\Core\GeneratedUrl|string
    */
   protected function resetLink(){
-    return Url::fromRoute($this->getRouteName())->toString();
+    $resetRoute = $this->definition['resetRoute'];
+    return Url::fromRoute($resetRoute)->toString();
   }
 
   public function searchRoute(){

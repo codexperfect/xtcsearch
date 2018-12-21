@@ -2,7 +2,7 @@
 
 namespace Drupal\xtcsearch\Element;
 
-use Drupal\Core\Render\Element\Checkbox as CoreCheckbox;
+use Drupal\Core\Render\Element\Item;
 
 /**
  * Provides a form element for a single checkbox.
@@ -13,15 +13,15 @@ use Drupal\Core\Render\Element\Checkbox as CoreCheckbox;
  * Usage example:
  * @code
  * $form['copy'] = array(
- *   '#type' => 'checkbox',
+ *   '#type' => 'xtctotal',
  *   '#title' => $this->t('Send me a copy'),
  * );
  * @endcode
  *
- * @see \Drupal\Core\Render\Element\Checkboxes
+ * @see \Drupal\Core\Render\Element\Item
  *
- * @FormElement("xtc_checkbox")
+ * @FormElement("xtctotal")
  */
-class Checkbox extends CoreCheckbox {
+class XtcTotal extends Item {
 
 }

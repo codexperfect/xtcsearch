@@ -15,15 +15,4 @@ use Drupal\Core\Url;
 class XtcSearchForm extends XtcSearchFormBase
 {
 
-  protected function getSearchId() {
-    return 'xtcsearch';
-  }
-
-  /**
-   * @return \Drupal\Core\GeneratedUrl|string
-   */
-  protected function resetLink(){
-    return Url::fromRoute('xtcsearch.search')->toString();
-  }
-
 }

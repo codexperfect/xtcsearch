@@ -8,7 +8,7 @@ use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePlugin
 /**
  * Default class used for xtcsearch_filters plugins.
  */
-class XtcsearchFilterDefault extends PluginBase implements XtcsearchFilterInterface
+class XtcSearchFilterDefault extends PluginBase implements XtcSearchFilterInterface
 {
 
   /**

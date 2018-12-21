@@ -25,13 +25,13 @@ abstract class XtcSearchBlockBase extends BlockBase
     return $form;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function setTitle($title) {
-    $this->title = $title;
-    return $this;
-  }
+//  /**
+//   * {@inheritdoc}
+//   */
+//  public function setTitle($title) {
+//    $this->title = $title;
+//    return $this;
+//  }
 
   abstract protected function getSearchName() : string;
 

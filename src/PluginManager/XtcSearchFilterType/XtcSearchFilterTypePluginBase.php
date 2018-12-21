@@ -6,7 +6,7 @@ use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Serialization\Json;
 use Drupal\xtc\XtendedContent\API\Config;
 use Drupal\xtcsearch\Form\XtcSearchFormInterface;
-use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcsearchFilterDefault;
+use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterDefault;
 use Elastica\Aggregation\Terms;
 
 /**
@@ -33,7 +33,7 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
   protected $itemName;
 
   /**
-   * @var XtcsearchFilterDefault
+   * @var XtcSearchFilterDefault
    */
   protected $filter;
 
@@ -52,9 +52,9 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
   }
 
   /**
-   * @param XtcsearchFilterDefault $filter
+   * @param XtcSearchFilterDefault $filter
    */
-  public function setFilter(XtcsearchFilterDefault $filter) : void {
+  public function setFilter(XtcSearchFilterDefault $filter) : void {
     $this->filter = $filter;
   }
 

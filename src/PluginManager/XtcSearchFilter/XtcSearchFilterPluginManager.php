@@ -20,11 +20,11 @@ use Drupal\Core\Plugin\Factory\ContainerFactory;
  *     description: STRING
  * @endcode
  *
- * @see \Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcsearchFilterDefault
- * @see \Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcsearchFilterInterface
+ * @see \Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterDefault
+ * @see \Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterInterface
  * @see plugin_api
  */
-class XtcsearchFilterPluginManager extends DefaultPluginManager {
+class XtcSearchFilterPluginManager extends DefaultPluginManager {
 
   /**
    * {@inheritdoc}
@@ -37,11 +37,11 @@ class XtcsearchFilterPluginManager extends DefaultPluginManager {
     // The xtcsearch_filter description.
     'description' => '',
     // Default plugin class.
-    'class' => 'Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcsearchFilterDefault',
+    'class' => 'Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterDefault',
   ];
 
   /**
-   * Constructs XtcsearchFilterPluginManager object.
+   * Constructs XtcSearchFilterPluginManager object.
    *
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler to invoke the alter hook with.

@@ -13,7 +13,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
-use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcsearchFilterDefault;
+use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterDefault;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 use Drupal\xtcsearch\PluginManager\XtcSearchPager\XtcSearchPagerPluginBase;
 use Elastica\Client;
@@ -102,11 +102,6 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
    */
   protected $filters = [];
 
-//  /**
-//   * @var array
-//   */
-//  protected $mainFilters = [];
-
   /**
    * @var array
    */
@@ -139,17 +134,12 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     $this->definition = $definition;
   }
 
-//  abstract protected function getSearchId();
   protected function getSearchId(){
     return $this->definition['pluginId'];
   }
 
   protected function init() {
-//    $this->definition = \Drupal::service('plugin.manager.xtcsearch')
-//      ->getDefinition($this->getSearchId());
-
     $this->filters = $this->definition['filters'];
-//    $this->mainFilters = $this->definition['mainfilters'];
     if(!empty($this->definition['pager'])){
       foreach ($this->definition['pager'] as $name => $value) {
         $this->pagination[$name] = $value;
@@ -183,7 +173,6 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     $this->getCriteria();
     $this->getResultSet();
 
-//    $this->getMainfilters();
     $this->getFilters();
     $this->getFilterButton();
     $this->getHeaderButton();
@@ -380,7 +369,6 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
 
   protected function getHeaderButton() {
     $this->form['container']['container_header']['total'] = [
-//      '#type' => 'item',
       '#type' => 'xtctotal',
       '#markup' => '<div id="total"> ' . $this->pagination['total'] . t(' Résultat(s)') . '</div>',
       '#weight' => '2',
@@ -696,7 +684,6 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
 
   protected function getItemsTheme(){
     return $this->definition['itemsTheme'] ?? 'xtc_search_item';
-//    return 'xtc_search_item';
   }
 
   /**
@@ -754,18 +741,12 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     $form_state->setRedirectUrl($url);
   }
 
-//  protected function loadFilter($name) : XtcSearchFilterTypePluginBase{
-//    $filters = \Drupal::service('plugin.manager.xtcsearch_filter');
-//    $filter = $filters->createInstance($name);
-//    return $filter->getFilter();
-//  }
-
   protected function loadFilter($name) : XtcSearchFilterTypePluginBase{
     $filter = $this->getFilter($name);
     return $filter->getFilterType();
   }
 
-  protected function getFilter($name) : XtcsearchFilterDefault{
+  protected function getFilter($name) : XtcSearchFilterDefault{
     $filters = \Drupal::service('plugin.manager.xtcsearch_filter');
     return  $filters->createInstance($name);
   }

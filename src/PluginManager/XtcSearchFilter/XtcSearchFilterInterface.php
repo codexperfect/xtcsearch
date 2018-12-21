@@ -5,7 +5,7 @@ namespace Drupal\xtcsearch\PluginManager\XtcSearchFilter;
 /**
  * Interface for xtcsearch_filter plugins.
  */
-interface XtcsearchFilterInterface {
+interface XtcSearchFilterInterface {
 
   /**
    * Returns the translated plugin label.

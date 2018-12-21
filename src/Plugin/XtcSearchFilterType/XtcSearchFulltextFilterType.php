@@ -3,7 +3,6 @@
 namespace Drupal\xtcsearch\Plugin\XtcSearchFilterType;
 
 
-use Drupal\Component\Serialization\Json;
 use Drupal\Core\Url;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 
@@ -64,13 +63,10 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
               '#prefix' => '<p class="suggestion-retour-meta float-left">',
               '#suffix' => '</p>',
             ];
-//          if (strtolower($value['text']) != strtolower($this->query_string)) {
-//          }
           }
         }
       }
 
-//      $filter['suggest'] = [
       $suggest = [
         '#type' => 'inline_template',
         '#weight' => '1',
@@ -98,7 +94,6 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
 
   public function hasSuggest() {
     return true;
-//    return false;
   }
 
   public function initSuggest(){

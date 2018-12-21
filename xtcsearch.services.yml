@@ -12,5 +12,5 @@ services:
     parent: default_plugin_manager
 
   plugin.manager.xtcsearch_filter:
-    class: Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcsearchFilterPluginManager
+    class: Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterPluginManager
     arguments: ['@module_handler', '@cache.discovery']

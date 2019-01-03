@@ -104,10 +104,12 @@ abstract class XtcSearchPagerPluginBase extends PluginBase
     ];
   }
 
-  abstract protected function buildPager();
+  protected function buildPager(){
+  }
 
-  abstract protected function getLibraries():array ;
-
+  protected function getLibraries():array {
+    return [];
+  }
   protected function loadLibraries(){
     $this->libs = $this->getLibraries();
   }

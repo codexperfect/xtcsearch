@@ -53,7 +53,7 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
       foreach($suggestions as $suggestion){
         if(!empty($suggestion[0]['options'])){
           foreach ($suggestion[0]['options'] as $key => $value) {
-            $text = '"' . strtolower($value['text']) . '"';
+            $text = $this->cleanup(strtolower($value['text']));
             $url = Url::fromRoute($this->form->getRouteName(), [$this->getPluginId() =>
               urlencode($text)]);
             $suggestionsList[] = [
@@ -80,6 +80,10 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
     return $suggest;
   }
 
+  protected function cleanup($string){
+    return $string;
+  }
+
   public function getRequest(){
     $request = \Drupal::request();
     $must = [];
@@ -88,36 +92,46 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
     }
     if(!empty($value) ){
       $must['query_string']['query'] = $value;
+      if(!empty($fields = $this->getFields()) ){
+        $must['query_string']['fields'] = $fields;
+      }
     }
     return $must;
   }
 
   public function hasSuggest() {
-    return true;
+    return $this->getParams()['suggest'] ?? false;
+  }
+
+  public function hasCompletion() {
+    return $this->getParams()['completion'] ?? false;
   }
 
   public function initSuggest(){
     if($this->hasSuggest()) {
       $value = $this->getDefault();
-      $fieldName = 'suggest_'.$this->pluginId;
       return [
-        'text' => $value,
-        $fieldName => [
-          'prefix' => $value,
-          'completion' => [
-            'field' => 'suggest',
-            'size' => 10,
-            'fuzzy' => [
-              'fuzziness' => 3
-            ],
-            'skip_duplicates' => true
-          ],
-        ],
+        'prefix' => $value,
         'completion' => [
-          'regex' => '.*' . $value . '.*',
-          'completion' => [
-            'field' => 'complete',
+          'field' => 'suggest',
+          'size' => 10,
+          'fuzzy' => [
+            'fuzziness' => 1
           ],
+          'skip_duplicates' => true
+        ],
+      ];
+    }
+    return [];
+  }
+
+  public function initCompletion(){
+    if($this->hasSuggest()) {
+      $value = $this->getDefault();
+      return [
+        'regex' => '.*' . $value . '.*',
+        'completion' => [
+          'field' => 'complete',
         ],
       ];
     }
@@ -134,7 +148,11 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
   }
 
   protected function getAutocomplete(){
-    return $this->getParams()['autocomplete'];
+    return $this->getParams()['autocomplete'] ?? [];
+  }
+
+  protected function getFields() : array {
+    return $this->getParams()['fields'] ?? [];
   }
 
 }

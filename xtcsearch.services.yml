@@ -14,3 +14,7 @@ services:
   plugin.manager.xtcsearch_filter:
     class: Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterPluginManager
     arguments: ['@module_handler', '@cache.discovery']
+
+  plugin.manager.xtcsearch_display:
+    class: Drupal\xtcsearch\PluginManager\XtcSearchDisplay\XtcSearchDisplayPluginManager
+    arguments: ['@module_handler', '@cache.discovery']

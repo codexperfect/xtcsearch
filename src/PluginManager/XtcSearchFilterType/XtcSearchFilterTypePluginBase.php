@@ -129,7 +129,7 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
 
   public function toQueryString($input) {
     $value = $input[$this->getFilterId()];
-    if(!empty($value && is_array($value))){
+    if(!empty($value) && is_array($value) && !is_string($value)){
       $value = array_flip(array_flip(array_values($value)));
     }
     return Json::encode($value);
@@ -207,7 +207,14 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
     return false;
   }
 
+  public function hasCompletion() {
+    return false;
+  }
+
   public function initSuggest(){
+  }
+
+  public function initCompletion(){
   }
 
   public function getSuggest(){

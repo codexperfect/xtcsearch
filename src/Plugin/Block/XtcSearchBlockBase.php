@@ -3,6 +3,7 @@
 namespace Drupal\xtcsearch\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\xtc\XtendedContent\API\Config;
 
 /**
@@ -18,20 +19,16 @@ abstract class XtcSearchBlockBase extends BlockBase
   }
 
   /**
-   * {@inheritdoc}
+   * @return array
    */
   public function build() {
-    $form = $this->getSearch();
-    return $form;
+    $search = Config::loadXtcForm($this->getSearchName());
+    $build = $this->getSearch();
+    if($search['label'] instanceof TranslatableMarkup){
+      $build['#title'] = $search['label']->getUntranslatedString();
+    }
+    return $build;
   }
-
-//  /**
-//   * {@inheritdoc}
-//   */
-//  public function setTitle($title) {
-//    $this->title = $title;
-//    return $this;
-//  }
 
   abstract protected function getSearchName() : string;
 

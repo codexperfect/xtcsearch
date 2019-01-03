@@ -18,12 +18,14 @@ class XtcSearchCheckboxFilterType extends XtcSearchFilterTypePluginBase
 {
 
   public function getFilter(){
-    return [
-      '#type' => 'checkboxes',
-      '#title' => $this->getTitle(),
-      '#options' => $this->getOptions(),
-      '#default_value' => $this->getDefault(),
-    ];
+    if(!empty($this->getOptions())){
+      return [
+        '#type' => 'xtc_checkboxes',
+        '#title' => $this->getTitle(),
+        '#options' => $this->getOptions(),
+        '#default_value' => $this->getDefault(),
+      ];
+    }
   }
 
 }

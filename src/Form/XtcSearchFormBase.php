@@ -13,6 +13,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
+use Drupal\xtc\XtendedContent\API\Config;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterDefault;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 use Drupal\xtcsearch\PluginManager\XtcSearchPager\XtcSearchPagerPluginBase;
@@ -335,8 +336,13 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
       $filter = $this->loadFilter($name);
       $filter->setForm($this);
       $this->musts[$filter->getFilterId()] = $filter->getRequest();
+      if($filter->hasCompletion()){
+        $this->suggests[$filter->getFilterId()]['completion_'.$filter->getFilterId()] =
+          $filter->initCompletion();
+      }
       if($filter->hasSuggest()){
-        $this->suggests[$filter->getFilterId()] = $filter->initSuggest();
+        $this->suggests[$filter->getFilterId()]['suggest_' .$filter->getFilterId()] =
+          $filter->initSuggest();
       }
     }
   }
@@ -353,18 +359,18 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
             'filter-submit',
           ],
       ],
-      '#prefix' => '<div class="col-12 mt-3"> <div class="form-group text-right">',
-      '#suffix' => '</div> </div>',
     ];
 
-    $this->form['container']['container_sidebar']['filter_bottom'] =
-      $filterElement;
-    $this->form['container']['container_sidebar']['filter_bottom']['#weight'] = 100;
+    $bottom = $top = $filterElement;
+    $top['#weight'] = -100;
+    $top['#prefix'] = $this->getButtonPrefix('filter_top');
+    $top['#suffix'] = $this->getButtonSuffix('filter_top');
+    $this->form['container']['container_sidebar']['buttons']['filter_top'] = $top;
 
-    $this->form['container']['container_sidebar']['buttons']['filter_top'] =
-      $filterElement;
-    $this->form['container']['container_sidebar']['buttons']['filter_top']['#weight'] = -100;
-    $this->form['container']['container_sidebar']['buttons']['filter_top']['#prefix'] = '<div class="col-6"> <div class="form-group text-left">';
+    $bottom['#weight'] = 100;
+    $bottom['#prefix'] = $this->getButtonPrefix('filter_bottom');
+    $bottom['#suffix'] = $this->getButtonSuffix('filter_bottom');
+    $this->form['container']['container_sidebar']['filter_bottom'] = $bottom;
   }
 
   protected function getHeaderButton() {
@@ -377,8 +383,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
 
   protected function getContainers() {
     $this->form['container'] = [
-      '#prefix' => ' <div class="row m-0" id="container-news-filter"> ',
-      '#suffix' => '</div>',
+      '#prefix' => $this->getContainerPrefix('main'),
+      '#suffix' => $this->getContainerSuffix('main'),
     ];
 
     $this->containerElements();
@@ -386,21 +392,46 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     $this->containerSidebar();
   }
 
+  protected function getContainerPrefix($container){
+    return Config::getPrefix('container', $this->getDisplay(), $container);
+  }
+  protected function getContainerSuffix($container){
+    return Config::getSuffix('container', $this->getDisplay(), $container);
+  }
+  protected function getButtonPrefix($container){
+    return Config::getPrefix('button', $this->getDisplay(), $container);
+  }
+  protected function getButtonSuffix($container){
+    return Config::getSuffix('button', $this->getDisplay(), $container);
+  }
+  protected function getNavPrefix($container){
+    return Config::getPrefix('navigation', $this->getDisplay(), $container);
+  }
+  protected function getNavSuffix($container){
+    return Config::getSuffix('navigation', $this->getDisplay(), $container);
+  }
+  protected function getItemsPrefix($container){
+    return Config::getPrefix('items', $this->getDisplay(), $container);
+  }
+  protected function getItemsSuffix($container){
+    return Config::getSuffix('items', $this->getDisplay(), $container);
+  }
+
   protected function containerHeader() {
-    $this->form['container']['container_header'] = [
-      '#prefix' => '<div id="mainfilter-div" class="col-12 mainfilter-div pt-3"> <div class="row">',
-      '#suffix' => '</div> </div>',
+    $name = 'header';
+    $this->form['container']['container_'.$name] = [
+      '#prefix' => $this->getContainerPrefix($name),
+      '#suffix' => $this->getContainerSuffix($name),
       '#weight' => -10,
     ];
   }
 
   protected function containerSidebar() {
-    $containerName = 'container_sidebar';
+    $name = 'sidebar';
+    $containerName = 'container_'.$name;
     $this->form['container'][$containerName] = [
-      '#prefix' => '<div id="filter-div" class="order-1 order-md-2 mb-4 mb-md-0 col-12 col-md-4">
-          <div class="row mr-md-0 h-100">
-            <div class="col-12 filter-div pt-3">',
-      '#suffix' => '</div> </div> </div>',
+      '#prefix' => $this->getContainerPrefix($name),
+      '#suffix' => $this->getContainerSuffix($name),
       '#weight' => 1,
     ];
     $this->form['container'][$containerName]['hide'] = [
@@ -415,12 +446,12 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
           ],
         'id' => 'filter-button-sm',
       ],
-      '#prefix' => '<div class="col-12 mt-3 mb-3 d-block d-md-none"> <div class="text-center text-sm-right d-block">',
-      '#suffix' => '</div> </div>',
+      '#prefix' => $this->getButtonPrefix('hide'),
+      '#suffix' => $this->getButtonSuffix('hide'),
     ];
     $this->form['container'][$containerName]['buttons'] = [
-      '#prefix' => '<div class="row col-12 mt-3 pr-md-0">',
-      '#suffix' => '</div>',
+      '#prefix' => $this->getButtonPrefix('buttons'),
+      '#suffix' => $this->getButtonSuffix('buttons'),
     ];
     $this->form['container'][$containerName]['buttons']['reset'] = [
       '#type' => 'button',
@@ -434,8 +465,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
           ],
         'onclick' => 'window.location = "' . $this->resetLink() . '"; return false;',
       ],
-      '#prefix' => '<div class="col-6 text-right mt-1 pr-md-0">',
-      '#suffix' => '</div>',
+      '#prefix' => $this->getButtonPrefix('reset'),
+      '#suffix' => $this->getButtonSuffix('reset'),
     ];
   }
 
@@ -462,22 +493,24 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   }
 
   protected function getTopNavigation() {
-    $this->form['container']['elements']['topNav'] = [
+    $name = 'top';
+    $containerName = 'navigation_'.$name;
+    $this->form['container']['elements'][$containerName] = [
       '#type' => 'container',
-      '#prefix' => '<div class="row mx-0 mb-30"><div class="col-12 px-0 px-md-15">',
-      '#suffix' => '</div></div>',
+      '#prefix' => $this->getNavPrefix('top'),
+      '#suffix' => $this->getNavSuffix('top'),
       '#weight' => '-10',
     ];
-    $this->form['container']['elements']['topNav']['buttons'] = [
+    $this->form['container']['elements'][$containerName]['buttons'] = [
       '#type' => 'container',
-      '#prefix' => '<div class="float-left">
-                  <span class="events-date">' . $this->navigation['current'] . '</span>
-                </div>
-                <div class="float-right">',
-      '#suffix' => '</div>',
+      '#prefix' => '<div class="float-left"><span class="events-date">'
+                   . $this->navigation['current']
+                   . '</span></div>'
+                   .$this->getNavPrefix('top_buttons'),
+      '#suffix' => $this->getNavSuffix('top_buttons'),
       '#weight' => '1',
     ];
-    $this->form['container']['elements']['topNav']['buttons']['prev'] = [
+    $this->form['container']['elements'][$containerName]['buttons']['prev'] = [
       '#type' => 'button',
       '#value' => '',
       '#weight' => '-1',
@@ -486,7 +519,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
         'onclick' => 'window.location = "' . $this->navigation['previous']['link'] . '"; return false;',
       ],
     ];
-    $this->form['container']['elements']['topNav']['buttons']['next'] = [
+    $this->form['container']['elements'][$containerName]['buttons']['next'] = [
       '#type' => 'button',
       '#value' => '',
       '#weight' => '1',
@@ -500,9 +533,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   protected function getBottomNavigation() {
     $this->form['container']['elements']['bottomNav'] = [
       '#type' => 'container',
-      '#prefix' => '<div class="row mx-0 mb-50">
-              <div class="col-12 bottom-months px-0 px-md-15">',
-      '#suffix' => '</div></div>',
+      '#prefix' => $this->getNavPrefix('bottom'),
+      '#suffix' => $this->getNavSuffix('bottom'),
       '#weight' => '1000',
     ];
     $this->form['container']['elements']['bottomNav']['prev'] = [
@@ -513,8 +545,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
         'class' => ['prev-month'],
         'onclick' => 'window.location = "' . $this->navigation['previous']['link'] . '"; return false;',
       ],
-      '#prefix' => '<div class="float-left">',
-      '#suffix' => '</div>',
+      '#prefix' => $this->getNavPrefix('bottom_prev'),
+      '#suffix' => $this->getNavSuffix('bottom_prev'),
     ];
     $this->form['container']['elements']['bottomNav']['next'] = [
       '#type' => 'button',
@@ -524,8 +556,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
         'class' => ['next-month'],
         'onclick' => 'window.location = "' . $this->navigation['next']['link'] . '"; return false;',
       ],
-      '#prefix' => '<div class="float-right">',
-      '#suffix' => '</div>',
+      '#prefix' => $this->getNavPrefix('bottom_next'),
+      '#suffix' => $this->getNavSuffix('bottom_next'),
     ];
   }
 
@@ -608,9 +640,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     }
     else{
       $this->form['container']['elements']['items']['results'] = [
-        '#prefix' => '<div id="all-items" class="gallery-wrapper clearfix">
-                <div class="col-sm-12 col-md-6 col-lg-4 grid-sizer px-0 px-md-3"></div>',
-        '#suffix' => '</div>',
+        '#prefix' => $this->getItemsPrefix('results'),
+        '#suffix' => $this->getItemsSuffix('results'),
         '#weight' => 0,
       ];
       $this->getResults();
@@ -618,17 +649,18 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   }
 
   protected function buildEmptyResultMessage($msg_none, $msg_reset){
-    $this->form['container']['elements']['items']['no_results'] = [
+    $name = 'noresults';
+    $this->form['container']['elements']['items'][$name] = [
       '#type' => 'container',
-      '#prefix' => '<div class="row mx-0 mb-30"><div class="col-12 px-0 px-md-15 no-result">',
-      '#suffix' => '</div></div>',
+      '#prefix' => $this->getItemsPrefix($name),
+      '#suffix' => $this->getItemsSuffix($name),
       '#weight' => '0',
     ];
-    $this->form['container']['elements']['items']['no_results']['message'] = [
+    $this->form['container']['elements']['items'][$name]['message'] = [
       '#type' => 'item',
       '#markup' => $msg_none,
     ];
-    $this->form['container']['elements']['items']['no_results']['reset']['button'] = [
+    $this->form['container']['elements']['items'][$name]['reset']['button'] = [
       '#type' => 'button',
       '#value' => $this->t('Réinitialiser ma recherche'),
       '#weight' => '0',
@@ -636,10 +668,9 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
         'class' => ['btn', 'btn-light', 'd-block', 'd-lg-inline-block', 'mt-4', 'mt-lg-0', 'ml-lg-5', 'm-0'],
         'onclick' => 'window.location = "' . $this->resetLink() . '"; return false;',
       ],
-      '#prefix' => '<div class="reset">
-          <div class="chevron"></div>
-          <div class="reset-txt"><p>' . $msg_reset . '</p></div>',
-      '#suffix' => '</div>',
+      '#prefix' => $this->getItemsPrefix($name.'_button')
+                   . '<div class="reset-txt"><p>' . $msg_reset . '</p></div>',
+      '#suffix' => $this->getItemsSuffix($name.'_button'),
     ];
   }
 
@@ -653,14 +684,15 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   }
 
   protected function containerElements(){
+    $name = 'content';
     $this->form['container']['elements'] = [
-      '#prefix' => '<div id="news-elements" class="col-12 p-0 order-2 order-md-1">',
-      '#suffix' => '</div>',
+      '#prefix' => $this->getContainerPrefix($name),
+      '#suffix' => $this->getContainerSuffix($name),
       '#weight' => 0,
     ];
     $this->form['container']['elements']['items'] = [
-      '#prefix' => '<div id="news-list-div">',
-      '#suffix' => '</div>',
+      '#prefix' => $this->getItemsPrefix('items'),
+      '#suffix' => $this->getItemsSuffix('items'),
       '#weight' => 0,
     ];
   }
@@ -683,7 +715,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   }
 
   protected function getItemsTheme(){
-    return $this->definition['itemsTheme'] ?? 'xtc_search_item';
+    return $this->definition['items']['theme'] ?? 'xtc_search_item';
   }
 
   /**
@@ -751,5 +783,8 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     return  $filters->createInstance($name);
   }
 
+  protected function getDisplay(){
+    return $this->definition['display'];
+  }
 
 }

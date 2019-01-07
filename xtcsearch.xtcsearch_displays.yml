@@ -1,17 +1,99 @@
 xtc_block:
   label: 'Bloc'
   description: 'Bloc pour XTC Search.'
-  regions:
+  total: false
+  hide: false
+  reset: false
+  filter_top: false
+  filter_bottom: true
+  link:
+    label: 'Tous les événements'
+    page: agenda
+  container:
+    main:
+      prefix: '<div class="row m-0 order-1" id="container-news-filter">'
+      suffix: '</div>'
     header:
-    sidebar:
+      prefix: '<div id="mainfilter-div" class="col-12 mainfilter-div pt-3 order-2"> <div class="row">'
+      suffix: '</div> </div>'
     top:
+      prefix: '<div id="news-elements" class="col-12 p-0 order-3">'
+      suffix: '</div>'
     content:
+      prefix: '<div id="news-elements" class="col-12 p-0 order-4">'
+      suffix: '</div>'
     bottom:
+      prefix: '<div class="col-12 p-0 orderorder-5">'
+      suffix: '</div>'
+    sidebar:
+      prefix: '<div id="filter-div" class="mb-4 mb-md-0 col-12 order-6"> <div class="row py-2 m-0"> <div class="col-12 filter-div pt-3">'
+      suffix: '</div> </div> </div>'
     footer:
+      prefix: '<div class="col-12 p-0 order-7">'
+      suffix: '</div>'
+  button:
+    buttons:
+      prefix: '<div class="row col-12 mt-3 pr-md-0">'
+      suffix: '</div>'
+    filter_top:
+      prefix: '<div class="col-6"> <div class="form-group text-left">'
+      suffix: '</div> </div>'
+    filter_bottom:
+      prefix: '<div class="col-12 mt-3"> <div class="form-group text-right">'
+      suffix: '</div> </div>'
+    hide:
+      prefix: '<div class="col-12 mt-3 mb-3 d-block d-md-none"> <div class="text-center text-sm-right d-block">'
+      suffix: '</div> </div>'
+    reset:
+      prefix: '<div class="col-6 text-right mt-1 pr-md-0">'
+      suffix: '</div>'
+  navigation:
+    top:
+      prefix: '<div class="row mx-0 mb-30"><div class="col-12 px-0 px-md-15">'
+      suffix: '</div></div>'
+    top_buttons:
+      prefix: '<div class="float-right">'
+      suffix: '</div>'
+    top_prev:
+      prefix: ''
+      suffix: ''
+    top_next:
+      prefix: ''
+      suffix: ''
+    bottom:
+      prefix: '<div class="row mx-0 mb-50"> <div class="col-12 bottom-months px-0 px-md-15">'
+      suffix: '</div></div>'
+    bottom_buttons:
+      prefix: ''
+      suffix: ''
+    bottom_prev:
+      prefix: '<div class="float-left">'
+      suffix: '</div>'
+    bottom_next:
+      prefix: '<div class="float-right">'
+      suffix: '</div>'
+  items:
+    items:
+      prefix: '<div id="news-list-div">'
+      suffix: '</div>'
+    results:
+      prefix: '<div id="all-items" class="gallery-wrapper clearfix"><div class="col-sm-12 col-md-6 col-lg-4 grid-sizer px-0 px-md-3"></div>'
+      suffix: '</div>'
+    noresults:
+      prefix: '<div class="row mx-0 mb-30"><div class="col-12 px-0 px-md-15 no-result">'
+      suffix: '</div></div>'
+    noresults_button:
+      prefix: '<div class="reset"> <div class="chevron"></div>'
+      suffix: '</div>'
 
 xtc_page:
   label: 'Page'
   description: 'Page pour XTC Search.'
+  total: true
+  hide: true
+  reset: true
+  filter_top: true
+  filter_bottom: true
   container:
     main:
       prefix: '<div class="row m-0" id="container-news-filter">'

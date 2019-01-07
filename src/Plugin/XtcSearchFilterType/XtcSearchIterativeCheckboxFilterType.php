@@ -29,7 +29,7 @@ class XtcSearchIterativeCheckboxFilterType extends XtcSearchFilterTypePluginBase
       '#type' => 'fieldset',
     ];
 
-    $prefix = $this->getFilterId().'_';
+    $prefix = $this->getQueryName().'_';
     if(!empty($options)){
       foreach ($options as $key => $option){
         $this->itemName = $prefix.$option['type'].'_'.$option['machineName'];
@@ -214,15 +214,15 @@ class XtcSearchIterativeCheckboxFilterType extends XtcSearchFilterTypePluginBase
   public function getRequest(){
     $request = \Drupal::request();
     $must = [];
-    if(!empty($request->get($this->getFilterId())) ) {
-      if (!is_array($request->get($this->getFilterId()))) {
+    if(!empty($request->get($this->getQueryName())) ) {
+      if (!is_array($request->get($this->getQueryName()))) {
         $filterRequest = $this->getDefault();
         foreach($filterRequest as $key => $request){
           $values[$key] = array_values($request);
         }
       }
       else {
-        $values = array_values($request->get($this->getFilterId()));
+        $values = array_values($request->get($this->getQueryName()));
       }
     }
     if(!empty($values) ){
@@ -239,7 +239,7 @@ class XtcSearchIterativeCheckboxFilterType extends XtcSearchFilterTypePluginBase
     $aggs = $this->getAggregations();
     foreach($aggs as $keyAgg => $agg) {
       $selected = [];
-      $pattern = '/'.$this->getFilterId() . $agg['prefix'] . '.*' . $agg['suffix'].'/';
+      $pattern = '/'.$this->getQueryName() . $agg['prefix'] . '.*' . $agg['suffix'].'/';
       if(!empty($agg['visible'])) {
         $level[$keyAgg] = $agg['field'];
       }
@@ -256,7 +256,7 @@ class XtcSearchIterativeCheckboxFilterType extends XtcSearchFilterTypePluginBase
       $value = [];
       foreach($selected as $key => $items){
         // TODO: Traiter le nommage des variables d'après les préfixes
-        if($this->getFilterId() == explode('_', $key)[0]
+        if($this->getQueryName() == explode('_', $key)[0]
            && !empty($items)
            && is_array($items)
            && !is_string($items)

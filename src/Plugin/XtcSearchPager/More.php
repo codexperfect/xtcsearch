@@ -64,6 +64,12 @@ class More extends XtcSearchPagerPluginBase
     ];
   }
 
+  /**
+   * @param array                                $form
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   */
   public function callBack(array $form, FormStateInterface $form_state){
     $response = new AjaxResponse();
     $response->addCommand(new AppendCommand('#all-items', $form['container']['elements']['items']['results']));

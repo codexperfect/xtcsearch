@@ -15,4 +15,9 @@ interface XtcSearchFilterTypeInterface {
    */
   public function label();
 
+  /**
+   * @return array
+   */
+  public function getFilter();
+
 }

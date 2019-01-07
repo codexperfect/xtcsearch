@@ -1,5 +1,6 @@
 (function ($, Drupal, drupalSettings) {
   var masonryIsEnabled = drupalSettings.xtcsearch.pager.masonry;
+  var hideIsEnabled = drupalSettings.xtcsearch.display.hide;
 
   /*
    * Filter button
@@ -67,11 +68,16 @@
   }
 
   function openFilter() {
-    $("#filter-button").addClass("filter-button-active");
-    $("#filter-button").html("Cacher les filtres");
+    var sizerClass = "px-0 px-md-3 col-sm-12";
+    if (hideIsEnabled){
+      $("#filter-button").addClass("filter-button-active");
+      $("#filter-button").html("Cacher les filtres");
 
-    $("#news-elements").removeClass("col-12");
-    $("#news-elements").addClass("col-12 col-md-8");
+      $("#news-elements").removeClass("col-12");
+      $("#news-elements").addClass("col-12 col-md-8");
+
+      sizerClass += " col-md-12 col-lg-6";
+    }
 
     setTimeout(function () {
       $("#filter-div").show();
@@ -80,8 +86,6 @@
       filterPosition();
     }, 251);
 
-    var sizerClass = "px-0 px-md-3 col-sm-12";
-    sizerClass += " col-md-12 col-lg-6";
     if (masonryIsEnabled) {
       refreshMasonry(sizerClass);
     }

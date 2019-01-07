@@ -3,6 +3,7 @@
 namespace Drupal\xtcsearch\Plugin\XtcSearchFilterType;
 
 
+use Drupal\Component\Serialization\Json;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 
 /**
@@ -18,17 +19,28 @@ class XtcSearchSelectFilterType extends XtcSearchFilterTypePluginBase
 {
 
   public function getFilter(){
-    return [
-      '#type' => 'select',
-      '#title' => $this->getTitle(),
-      '#options' => $this->getOptions(),
-      '#default_value' => $this->getDefault(),
-      '#attributes' => [
-        'class' => [ 'custom-select'],
-      ],
-      '#prefix' => '<div class="col-12 mb-4">',
-      '#suffix' => '</div>',
-    ];
+    if(!empty($this->getOptions())){
+      $options = array_merge(['' => '---'], $this->getOptions());
+      return [
+        '#type' => 'select',
+        '#title' => $this->getTitle(),
+        '#options' => $options,
+        '#default_value' => $this->getDefault(),
+        '#attributes' => [
+          'class' => [ 'custom-select'],
+        ],
+        '#prefix' => '<div class="col-12 mb-4">',
+        '#suffix' => '</div>',
+      ];
+    }
+  }
+
+  public function getDefault() {
+    $value = Json::decode(\Drupal::request()->get($this->getQueryName()));
+    if(is_array($value)){
+      $value = $value[0];
+    }
+    return (!empty($value)) ? $value : null;
   }
 
 }

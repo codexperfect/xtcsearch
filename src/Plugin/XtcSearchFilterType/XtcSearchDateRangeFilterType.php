@@ -94,9 +94,11 @@ class XtcSearchDateRangeFilterType extends XtcSearchRangeFilterType
   }
 
   public function toQueryString($input) {
+    $default['month'] = \Drupal::request()->get('month') ?? date('m');
+    $default['year'] = \Drupal::request()->get('year') ?? date('Y');
     return [
-      'month' =>  $input['month'] ?? date('m'),
-      'year' => $input['year'] ?? date('Y'),
+      'month' =>  $input['month'] ?? $default['month'],
+      'year' => $input['year'] ?? $default['year'],
     ];
   }
 

@@ -51,6 +51,10 @@ class XtcSearchFilterDefault extends PluginBase implements XtcSearchFilterInterf
     return $this->getPluginDefinition()['placeholder'] ?? '';
   }
 
+  public function getQueryName() : string{
+    return $this->getPluginDefinition()['queryName'] ?? '';
+  }
+
   public function getParams() : array{
     return $this->getPluginDefinition()['params'] ?? [];
   }

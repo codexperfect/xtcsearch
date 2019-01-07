@@ -18,6 +18,9 @@ use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePlugin
 class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
 {
 
+  /**
+   * @return array
+   */
   public function getFilter(){
     $filter = [
       '#type' => 'search',
@@ -87,7 +90,7 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
   public function getRequest(){
     $request = \Drupal::request();
     $must = [];
-    if(!empty($request->get($this->getFilterId())) ) {
+    if(!empty($request->get($this->getQueryName())) ) {
       $value = $this->getDefault();
     }
     if(!empty($value) ){
@@ -139,12 +142,13 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
   }
 
   public function toQueryString($input) {
-    $value = $input[$this->getFilterId()];
+    $value = $input[$this->getQueryName()] ?? \Drupal::request()->get
+      ($this->getQueryName());
     return urlencode($value);
   }
 
   public function getDefault() {
-    return urldecode(\Drupal::request()->get($this->getFilterId()));
+    return urldecode(\Drupal::request()->get($this->getQueryName()));
   }
 
   protected function getAutocomplete(){

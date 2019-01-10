@@ -12,7 +12,6 @@ namespace Drupal\xtcsearch\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\xtc\XtendedContent\API\Config;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 
 class XtcSearchController extends ControllerBase
 {
@@ -27,26 +26,20 @@ class XtcSearchController extends ControllerBase
   }
 
   /**
-   * Handler for autocomplete request.
    */
-  public function handleAutocomplete(Request $request, $field_name, $count) {
-    $input = $request->query->get('q');
-    $this->elastic = \Drupal::service('csoec_common.es');
-    $search = $this->elastic->getConnection()
-                            ->setIndex('contenu,document,publication')
-                            ->addSuggest($input);
-    $options = $search->getSuggests()['my-suggest-all'][0]['options'];
 
-    $results = [];
-    // Get the typed string from the URL, if it exists.
-    for ($i = 0; $i < count($options); $i++) {
-      $results[] = [
-        'value' => '"' . $options[$i]['text'] . '"',
-        'label' => '"' . $options[$i]['text'] . '"',
-      ];
-    }
-
-    return new JsonResponse($results);
+  /**
+   * Handler for autocomplete request.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   * @param string                                    $searchId
+   * @param string                                    $string
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   */
+  public function handleAutocomplete($searchId) {
+    $items = Config::getAutocomplete($searchId);
+    return New JsonResponse($items);
   }
 
   public function getTitle() {

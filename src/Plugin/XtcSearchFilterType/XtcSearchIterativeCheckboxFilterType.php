@@ -255,6 +255,7 @@ class XtcSearchIterativeCheckboxFilterType extends XtcSearchFilterTypePluginBase
         }
       }
 
+      $values = [];
       $value = [];
       foreach($selected as $key => $items){
         // TODO: Traiter le nommage des variables d'après les préfixes

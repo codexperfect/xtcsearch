@@ -32,7 +32,6 @@ class XtcSearchDateSelectFilterType extends XtcSearchSelectFilterType
   }
 
   public function getFilter(){
-//    $element = $this->buildSelectFilter();
     $element = parent::getFilter();
     $element['#attributes'] = [
       'class' => [
@@ -49,7 +48,7 @@ class XtcSearchDateSelectFilterType extends XtcSearchSelectFilterType
     foreach ($this->options() as $name => $value) {
       $range->addRange($value['from'], $value['to'], $name);
     }
-    $this->form->getQuery()
+    $this->searchBuilder->getQuery()
                ->addAggregation($range);
   }
 
@@ -58,7 +57,6 @@ class XtcSearchDateSelectFilterType extends XtcSearchSelectFilterType
     if (!empty($this->getAggregationBuckets()['buckets']) &&
         $results = $this->getAggregationBuckets()['buckets']
     ) {
-//    $results = $this->getAggregationBuckets()['buckets'];
       $options = [
         '' => t('None'),
       ];

@@ -7,7 +7,7 @@ xtcsearch.search:
     _permission: 'access content'
 
 xtcsearch.autocomplete:
-  path: '/xtcsearch/autocomplete/{field_name}/{count}'
+  path: '/xtcsearch/autocomplete/{searchId}'
   defaults:
     _controller: '\Drupal\xtcsearch\Controller\XtcSearchController::handleAutocomplete'
     _format: json

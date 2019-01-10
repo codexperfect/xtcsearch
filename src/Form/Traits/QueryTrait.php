@@ -171,7 +171,6 @@ trait QueryTrait
       $this->searchSort();
       $this->buildSuggest();
       $this->addAggregations();
-
       $this->resultSet = $this->search->search($this->query);
 
       $this->paginationSet('total', $this->resultSet->getTotalHits());

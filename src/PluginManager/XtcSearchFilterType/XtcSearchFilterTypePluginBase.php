@@ -8,6 +8,7 @@ use Drupal\xtc\XtendedContent\API\Config;
 use Drupal\xtcsearch\Form\XtcSearchFormBase;
 use Drupal\xtcsearch\Form\XtcSearchFormInterface;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterDefault;
+use Drupal\xtcsearch\SearchBuilder\XtcSearchBuilder;
 use Elastica\Aggregation\Terms;
 use Elastica\Exception\InvalidException;
 
@@ -21,6 +22,11 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
    * @var \Drupal\xtcsearch\Form\XtcSearchFormBase
    */
   protected $form;
+
+  /**
+   * @var \Drupal\xtcsearch\SearchBuilder\XtcSearchBuilder
+   */
+  protected $searchBuilder;
 
   /**
    * @var array;
@@ -118,6 +124,20 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
     $this->form = $form;
   }
 
+  /**
+   * @return \Drupal\xtcsearch\SearchBuilder\XtcSearchBuilder
+   */
+  public function getSearchBuilder(): XtcSearchBuilder {
+    return $this->searchBuilder;
+  }
+
+  /**
+   * @param $searchBuilder
+   */
+  public function setSearchBuilder($searchBuilder): void {
+    $this->searchBuilder = $searchBuilder;
+  }
+
   public function getOptions(){
     if (!empty($this->getAggregationBuckets()['buckets']) &&
         $result = $this->getAggregationBuckets()['buckets']
@@ -186,7 +206,7 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
   }
 
   public function addAggregation(){
-    if(!empty($this->form) && !empty($aggs = $this->getAggregations())){
+    if(!empty($aggs = $this->getAggregations())){
       foreach($aggs as $key => $agg){
         $aggregations[$key] = $this->initAggregation($agg['name'], $agg['field'], $agg['size']);
         if($key > 0 && $aggregation = $aggregations[$key-1]){
@@ -195,8 +215,10 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
           }
         }
       }
-      $this->form->getQuery()
-        ->addAggregation($aggregations[0]);
+      if($this->searchBuilder instanceof XtcSearchBuilder){
+        $this->searchBuilder->getQuery()
+             ->addAggregation($aggregations[0]);
+      }
     }
   }
 

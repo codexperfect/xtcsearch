@@ -112,7 +112,7 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
       return [
         'prefix' => $this->getDefault(),
         'completion' => [
-          'field' => 'suggest',
+          'field' => 'complete.light_suggest',
           'size' => 10,
           'fuzzy' => [
             'fuzziness' => 1
@@ -127,9 +127,14 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
   public function initCompletion(){
     if($this->hasCompletion()) {
       return [
-        'regex' => '.*' . $this->getDefault() . '.*',
+        'prefix' => $this->getDefault(),
         'completion' => [
-          'field' => 'complete',
+          'field' => 'suggest.light_suggest',
+          'size' => 10,
+          'fuzzy' => [
+            'fuzziness' => 1
+          ],
+          'skip_duplicates' => true
         ],
       ];
     }

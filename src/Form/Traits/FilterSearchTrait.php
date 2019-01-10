@@ -20,6 +20,7 @@ trait FilterSearchTrait
     foreach($this->filters as $name => $container) {
       $filter = $this->loadFilter($name);
       $filter->setForm($this->form);
+      $filter->setSearchBuilder($this);
       $filter->addAggregation();
     }
   }
@@ -27,7 +28,6 @@ trait FilterSearchTrait
   protected function getCriteria() {
     foreach($this->filters as $name => $container) {
       $filter = $this->loadFilter($name);
-      $filter->setForm($this->form);
       $this->musts[$filter->getQueryName()] = $filter->getRequest();
       $this->addCompletion($filter);
       $this->addSuggest($filter);
@@ -45,6 +45,5 @@ trait FilterSearchTrait
       $this->suggests[$filter->getQueryName()]['suggest_' . $filter->getQueryName()] = $filter->initSuggest();
     }
   }
-
 
 }

@@ -1,7 +1,57 @@
 autocomplete:
   label: 'Autocomplete'
   description: 'Autocomplete for XTC Search.'
-
+  container:
+    main:
+      prefix: ''
+      suffix: ''
+    header:
+      prefix: ''
+      suffix: ''
+    top:
+      prefix: ''
+      suffix: ''
+    content:
+      prefix: ''
+      suffix: ''
+    bottom:
+      prefix: ''
+      suffix: ''
+    sidebar:
+      prefix: ''
+      suffix: ''
+    footer:
+      prefix: ''
+      suffix: ''
+  button:
+    buttons:
+      prefix: ''
+      suffix: ''
+    filter_top:
+      prefix: ''
+      suffix: ''
+    filter_bottom:
+      prefix: ''
+      suffix: ''
+    hide:
+      prefix: ''
+      suffix: ''
+    reset:
+      prefix: ''
+      suffix: ''
+  items:
+    items:
+      prefix: ''
+      suffix: ''
+    results:
+      prefix: ''
+      suffix: ''
+    noresults:
+      prefix: ''
+      suffix: ''
+    noresults_button:
+      prefix: ''
+      suffix: ''
 
 xtc_block:
   label: 'Block'

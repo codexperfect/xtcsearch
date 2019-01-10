@@ -54,19 +54,24 @@ class XtcSearchDateSelectFilterType extends XtcSearchSelectFilterType
   }
 
   public function getOptions() {
-    $results = $this->getAggregationBuckets()['buckets'];
-    $options = [
-      '' => t('None'),
-    ];
+    $options = [];
+    if (!empty($this->getAggregationBuckets()['buckets']) &&
+        $results = $this->getAggregationBuckets()['buckets']
+    ) {
+//    $results = $this->getAggregationBuckets()['buckets'];
+      $options = [
+        '' => t('None'),
+      ];
 
-    foreach ($results as $result) {
-      $name = $this->options()[$result['key']]['from'];
-      $opt[$name] = t($result['key']) . ' (' . $result['doc_count'] . ')';
-    }
+      foreach($results as $result) {
+        $name = $this->options()[$result['key']]['from'];
+        $opt[$name] = t($result['key']) . ' (' . $result['doc_count'] . ')';
+      }
 
-    // Replacer dans l'ordre des options
-    foreach ($this->options() as $name => $value) {
-      $options[$value['from']] = $opt[$value['from']];
+      // Replacer dans l'ordre des options
+      foreach($this->options() as $name => $value) {
+        $options[$value['from']] = $opt[$value['from']];
+      }
     }
     return $options;
   }

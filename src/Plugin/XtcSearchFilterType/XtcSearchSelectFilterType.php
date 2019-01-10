@@ -19,20 +19,21 @@ class XtcSearchSelectFilterType extends XtcSearchFilterTypePluginBase
 {
 
   public function getFilter(){
-    if(!empty($this->getOptions())){
-      $options = array_merge(['' => '---'], $this->getOptions());
-      return [
-        '#type' => 'select',
-        '#title' => $this->getTitle(),
-        '#options' => $options,
-        '#default_value' => $this->getDefault(),
-        '#attributes' => [
-          'class' => [ 'custom-select'],
-        ],
-        '#prefix' => '<div class="col-12 mb-4">',
-        '#suffix' => '</div>',
-      ];
-    }
+    $empty = ['' => '---'];
+    $options = (!empty($this->getOptions()))
+      ? array_merge($empty, $this->getOptions())
+      : $empty;
+    return [
+      '#type' => 'select',
+      '#title' => $this->getTitle(),
+      '#options' => $options,
+      '#default_value' => $this->getDefault(),
+      '#attributes' => [
+        'class' => [ 'custom-select'],
+      ],
+      '#prefix' => '<div class="col-12 mb-4">',
+      '#suffix' => '</div>',
+    ];
   }
 
   public function getDefault() {
@@ -40,7 +41,7 @@ class XtcSearchSelectFilterType extends XtcSearchFilterTypePluginBase
     if(is_array($value)){
       $value = $value[0];
     }
-    return (!empty($value)) ? $value : null;
+    return (!empty($value)) ? $value : '';
   }
 
 }

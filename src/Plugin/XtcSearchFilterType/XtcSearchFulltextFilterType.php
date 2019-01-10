@@ -22,7 +22,7 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
    * @return array
    */
   public function getFilter(){
-    $filter = [
+    return [
       '#type' => 'search',
       '#title' => $this->getTitle(),
       '#placeholder' => $this->getPlaceholder(),
@@ -42,17 +42,14 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
       '#weight' => '1',
       '#autocomplete_route_name' => $this->getAutocomplete()['service'],
       '#autocomplete_route_parameters' => $this->getAutocomplete()['parameters'],
-//      '#prefix' => '<div class="col-md-10 text-right">',
-//      '#suffix' => '</div>',
     ];
-    return $filter;
-
   }
 
   public function getSuggest(){
     if($this->hasSuggest()){
       $suggestions = $this->form->getResultSet()->getSuggests();
 
+      $suggestionsList = [];
       foreach($suggestions as $suggestion){
         if(!empty($suggestion[0]['options'])){
           foreach ($suggestion[0]['options'] as $key => $value) {
@@ -112,9 +109,8 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
 
   public function initSuggest(){
     if($this->hasSuggest()) {
-      $value = $this->getDefault();
       return [
-        'prefix' => $value,
+        'prefix' => $this->getDefault(),
         'completion' => [
           'field' => 'suggest',
           'size' => 10,
@@ -129,10 +125,9 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
   }
 
   public function initCompletion(){
-    if($this->hasSuggest()) {
-      $value = $this->getDefault();
+    if($this->hasCompletion()) {
       return [
-        'regex' => '.*' . $value . '.*',
+        'regex' => '.*' . $this->getDefault() . '.*',
         'completion' => [
           'field' => 'complete',
         ],

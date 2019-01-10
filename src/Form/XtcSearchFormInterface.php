@@ -16,19 +16,10 @@ use Elastica\ResultSet;
 
 interface XtcSearchFormInterface extends FormInterface
 {
-  /**
-   * @return \Elastica\ResultSet
-   */
-  function getResultSet() : ResultSet;
-
-  function getElastica() : Client;
-
   function getForm() : array;
 
   function getRouteName();
 
   function searchRoute();
-
-  function getQuery() : Query;
 
 }

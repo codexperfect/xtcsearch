@@ -33,9 +33,9 @@ trait NavigationTrait
   protected $nav = [];
 
 
-  protected function initNav($definition){
-    if(!empty($definition['nav'])){
-      foreach ($definition['nav'] as $name => $value) {
+  protected function initNav(){
+    if(!empty($this->definition['nav'])){
+      foreach ($this->definition['nav'] as $name => $value) {
         $this->nav[$name] = $value;
       }
     }

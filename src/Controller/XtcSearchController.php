@@ -11,22 +11,16 @@ namespace Drupal\xtcsearch\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\xtc\XtendedContent\API\Config;
-use Drupal\xtcsearch\Form\XtcSearchForm;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-class SearchController extends ControllerBase
+class XtcSearchController extends ControllerBase
 {
 
-  /**
-   * @param $id
-   *
-   * @return array
-   */
   public function search() {
     $form = Config::getSearch('xtc_search');
     return [
-      '#theme' => 'csoec_agenda',
+      '#theme' => 'xtc_search_form',
       '#response' => ['headline' => $this->getTitle()],
       '#form_events' => $form,
     ];
@@ -56,7 +50,7 @@ class SearchController extends ControllerBase
   }
 
   public function getTitle() {
-    return 'Recherche';
+    return 'Search';
   }
 
   protected function getType() {

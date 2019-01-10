@@ -5,9 +5,11 @@ namespace Drupal\xtcsearch\PluginManager\XtcSearchFilterType;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Serialization\Json;
 use Drupal\xtc\XtendedContent\API\Config;
+use Drupal\xtcsearch\Form\XtcSearchFormBase;
 use Drupal\xtcsearch\Form\XtcSearchFormInterface;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterDefault;
 use Elastica\Aggregation\Terms;
+use Elastica\Exception\InvalidException;
 
 /**
  * Base class for xtcsearch_filter_type plugins.
@@ -16,7 +18,7 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
 {
 
   /**
-   * @var XtcSearchFormInterface
+   * @var \Drupal\xtcsearch\Form\XtcSearchFormBase
    */
   protected $form;
 
@@ -112,12 +114,14 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
   /**
    * @param XtcSearchFormInterface $form
    */
-  public function setForm(XtcSearchFormInterface $form): void {
+  public function setForm(XtcSearchFormBase $form): void {
     $this->form = $form;
   }
 
   public function getOptions(){
-    if ($result = $this->getAggregationBuckets()['buckets']) {
+    if (!empty($this->getAggregationBuckets()['buckets']) &&
+        $result = $this->getAggregationBuckets()['buckets']
+    ) {
       foreach ($result as $option) {
         $this->options[$option['key']] = $option['key'] . ' (' . $option['doc_count'] . ')';
       }
@@ -197,14 +201,21 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
   }
 
   public function getAggregationBuckets() {
-    if(!empty($this->form) && $this->form instanceof XtcSearchFormInterface) {
+    $agg = [];
+    if(!empty($this->form)
+       && $this->form instanceof XtcSearchFormBase
+    ) {
       $search = $this->form->getResultSet();
       $name = $this->getAggregations()[0]['name'];
-      if(!empty($search->getAggregation($name))){
-        return $search->getAggregation($name);
+      try{
+        $agg = $search->getAggregation($name);
+      }
+      catch(InvalidException $e){
+      }
+      finally{
       }
     }
-    return null;
+    return $agg;
 
   }
 

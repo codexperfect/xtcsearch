@@ -59,21 +59,21 @@ trait QueryTrait
    */
   protected $musts_not;
 
+  /**
+   * @var array
+   */
+  protected $suggests;
+
 
   protected function initQuery(){
     $this->query = New Query();
     $this->search = New Search($this->elastica);
   }
 
-  protected function initSearch(){
-    $this->search = New Search($this->elastica);
-  }
-
   protected function initElastica() {
-    $serverName = $this->definition['server'];
     $settings = Settings::get('csoec.serve_client')['xtc']['serve_client']['server'];
-    $server = \Drupal::service('plugin.manager.xtc_server')->getDefinition($serverName);
-    $env = $settings[$serverName]['env'] ?? $server['env'];
+    $server = \Drupal::service('plugin.manager.xtc_server')->getDefinition($this->definition['server']);
+    $env = $settings[$this->definition['server']]['env'] ?? $server['env'];
     $connection = [
       'host' => $server['connection'][$env]['host'],
       'port' => $server['connection'][$env]['port'],
@@ -90,9 +90,11 @@ trait QueryTrait
 
   protected function buildQuery() {
     $must = [];
-    foreach ($this->musts as $request) {
-      if (!empty($request)) {
-        $must['query']['bool']['must'][] = $request;
+    if(!empty($this->musts)){
+      foreach ($this->musts as $request) {
+        if (!empty($request)) {
+          $must['query']['bool']['must'][] = $request;
+        }
       }
     }
     $this->query->setRawQuery($must);
@@ -116,19 +118,21 @@ trait QueryTrait
   }
 
   protected function setIndices(){
-    foreach($this->definition['index'] as $indexName){
-      $index = New Index($this->elastica, $indexName);
-      $this->buildType($index);
-      $this->search->addIndex($index);
+    if(!empty($this->definition['index'])){
+      foreach($this->definition['index'] as $indexName){
+        $index = New Index($this->elastica, $indexName);
+        $this->buildType($index);
+        $this->search->addIndex($index);
+      }
     }
   }
 
   protected function setFrom(){
-    $this->query->setParam('from', $this->pagination['from']);
+    $this->query->setParam('from', $this->paginationGet('from'));
   }
 
   protected function setSize(){
-    $this->query->setParam('size', $this->pagination['size']);
+    $this->query->setParam('size', $this->paginationGet('size'));
   }
 
   /**
@@ -150,13 +154,18 @@ trait QueryTrait
   /**
    * @return \Elastica\ResultSet
    */
-  public function getResultSet() : ResultSet{
+  public function getResultSet() : ResultSet {
     $request = \Drupal::request();
-    if (empty($this->resultSet)
-        || !$this->searched
-    ) {
-      $this->pagination['page'] = (!empty($request->get('page_number'))) ? $request->get('page_number') : 1;
-      $this->pagination['from'] = $this->pagination['size'] * ($this->pagination['page'] - 1);
+    if(empty($this->resultSet)
+       || !$this->searched) {
+      $page = (!empty($request->get('page_number')) &&
+               is_integer($request->get('page_number'))
+      ) ? $request->get('page_number') : 1;
+      $this->paginationSet('page', $page);
+
+      $from = $this->paginationGet('size')
+        * ($this->paginationGet('page') - 1);
+      $this->paginationSet('from', $from);
 
       $this->buildQuery();
       $this->searchSort();
@@ -165,9 +174,9 @@ trait QueryTrait
 
       $this->resultSet = $this->search->search($this->query);
 
-      $this->pagination['total'] = $this->resultSet->getTotalHits();
+      $this->paginationSet('total', $this->resultSet->getTotalHits());
       $this->results = $this->resultSet->getDocuments();
-      $this->searched = TRUE;
+      $this->searched = true;
     }
 
     return $this->resultSet;
@@ -181,7 +190,5 @@ trait QueryTrait
       $this->query->setSort($sortArgs);
     }
   }
-
-
 
 }

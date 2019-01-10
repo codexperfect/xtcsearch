@@ -30,7 +30,10 @@ class XtcSearchCheckboxFilterType extends XtcSearchFilterTypePluginBase
   }
 
   public function getDefault() {
-    $value = Json::decode(\Drupal::request()->get($this->getQueryName()));
+    $value = \Drupal::request()->get($this->getQueryName());
+    if(is_string($value)){
+      $value = Json::decode($value);
+    }
     if(!is_array($value)){
       $value = (!empty($value)) ? [$value] : [];
     }

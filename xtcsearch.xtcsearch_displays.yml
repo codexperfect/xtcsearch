@@ -1,14 +1,19 @@
+autocomplete:
+  label: 'Autocomplete'
+  description: 'Autocomplete for XTC Search.'
+
+
 xtc_block:
-  label: 'Bloc'
-  description: 'Bloc pour XTC Search.'
+  label: 'Block'
+  description: 'Block for XTC Search.'
   total: false
   hide: false
   reset: false
   filter_top: false
   filter_bottom: true
   link:
-    label: 'Tous les événements'
-    page: agenda
+    label: 'All events'
+    page: xtc_search
   container:
     main:
       prefix: '<div class="row m-0 order-1" id="container-news-filter">'
@@ -88,7 +93,7 @@ xtc_block:
 
 xtc_page:
   label: 'Page'
-  description: 'Page pour XTC Search.'
+  description: 'Page for XTC Search.'
   total: true
   hide: true
   reset: true

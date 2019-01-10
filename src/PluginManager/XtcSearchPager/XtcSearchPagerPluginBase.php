@@ -5,6 +5,7 @@ namespace Drupal\xtcsearch\PluginManager\XtcSearchPager;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\xtcsearch\Form\XtcSearchFormBase;
 use Drupal\xtcsearch\Form\XtcSearchFormInterface;
 
 /**
@@ -115,9 +116,9 @@ abstract class XtcSearchPagerPluginBase extends PluginBase
   }
 
   /**
-   * @param \Drupal\xtcsearch\Form\XtcSearchFormInterface $xtcSearchForm
+   * @param \Drupal\xtcsearch\Form\XtcSearchFormBase $xtcSearchForm
    */
-  public function setXtcSearchForm(XtcSearchFormInterface &$xtcSearchForm): void {
+  public function setXtcSearchForm(XtcSearchFormBase &$xtcSearchForm): void {
     $this->xtcSearchForm = $xtcSearchForm;
   }
 

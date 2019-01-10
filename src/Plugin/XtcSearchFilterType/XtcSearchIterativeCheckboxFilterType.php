@@ -51,8 +51,10 @@ class XtcSearchIterativeCheckboxFilterType extends XtcSearchFilterTypePluginBase
   }
 
   public function getOptions(){
-    if ($results = $this->getAggregationBuckets()) {
-      foreach ($results['buckets'] as $key => $result) {
+    if (!empty($this->getAggregationBuckets()['buckets']) &&
+        $results = $this->getAggregationBuckets()['buckets']
+    ) {
+      foreach ($results as $key => $result) {
         $this->options[$key] = $this->buildCurrent($result, 0, $key);
         $current = $this->options[$key];
 
@@ -257,13 +259,13 @@ class XtcSearchIterativeCheckboxFilterType extends XtcSearchFilterTypePluginBase
       foreach($selected as $key => $items){
         // TODO: Traiter le nommage des variables d'après les préfixes
         if($this->getQueryName() == explode('_', $key)[0]
-           && !empty($items)
-           && is_array($items)
-           && !is_string($items)
+           && !empty($items['values'])
+           && is_array($items['values'])
+           && !is_string($items['values'])
         ){
-          $item = array_flip(array_values($items['values']));
+          $item = @array_flip(@array_flip(@array_values($items['values'])));
           if(!empty($item)){
-            $value = array_merge($value, array_flip($item));
+            $value = array_merge($value, $item);
           }
         }
         $values[$items['field']] = $value;

@@ -13,23 +13,24 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\xtcsearch\Form\Traits\ContainerTrait;
-use Drupal\xtcsearch\Form\Traits\FilterTrait;
+use Drupal\xtcsearch\Form\Traits\FilterContainerTrait;
 use Drupal\xtcsearch\Form\Traits\NavigationTrait;
-use Drupal\xtcsearch\Form\Traits\PaginationTrait;
+use Drupal\xtcsearch\Form\Traits\PagerTrait;
 use Drupal\xtcsearch\Form\Traits\PrefixSuffixTrait;
-use Drupal\xtcsearch\Form\Traits\QueryTrait;
 use Drupal\xtcsearch\Form\Traits\RouteTrait;
+use Drupal\xtcsearch\SearchBuilder\XtcSearchBuilder;
 use Elastica\Document;
+use Elastica\Query;
+use Elastica\ResultSet;
 
 abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterface
 {
 
   use ContainerTrait;
-  use FilterTrait;
+  use FilterContainerTrait;
   use NavigationTrait;
-  use PaginationTrait;
+  use PagerTrait;
   use PrefixSuffixTrait;
-  use QueryTrait;
   use RouteTrait;
 
   /**
@@ -47,14 +48,19 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
    */
   protected $definition;
 
-  /**
-   * @var array
-   */
-  protected $suggests;
-
   protected $searched = FALSE;
 
   protected $isCallback = FALSE;
+
+  /**
+   * @var XtcSearchBuilder
+   */
+  protected $searchBuilder;
+
+  /**
+   * @var array
+   */
+  protected $results;
 
 
   /**
@@ -68,18 +74,18 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     $this->definition = $definition;
   }
 
-  protected function getSearchId(){
+  public function getSearchId(){
     return $this->definition['pluginId'];
   }
 
   protected function init() {
-    $this->initFilters($this->definition);
-    $this->initPagination($this->definition);
-    $this->initNav($this->definition);
+    $this->initFilters();
+    $this->initNav();
+    $this->initSearchBuilder();
+  }
 
-    $this->initElastica();
-    $this->initQuery();
-    $this->initSearch();
+  protected function initSearchBuilder(){
+    $this->searchBuilder = New XtcSearchBuilder($this);
   }
 
   /**
@@ -96,11 +102,9 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
 
     $this->getContainers();
 
-    $this->getCriteria();
-    $this->getResultSet();
+    $this->searchBuilder->triggerSearch();
 
     $this->getFilters();
-    $this->getFilterButton();
     $this->getHeaderButton();
 
     $this->getItems();
@@ -109,17 +113,34 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     return $this->form;
   }
 
-  /**
-   * @param array $form
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *
-   * @return array
-   */
+  public function getResultSet() : ResultSet{
+    return $this->searchBuilder->getResultSet();
+  }
+
+  public function getQuery() : Query {
+    return $this->searchBuilder->getQuery();
+  }
+
   protected function getCallbackResults(){
     $this->searched = false;
-    $this->results = $this->getResultSet()->getDocuments();
+    $this->results = $this->searchBuilder->getDocuments();
     $this->containerElements();
     $this->getResults();
+  }
+
+  protected function getItems(){
+    $this->results = $this->searchBuilder->getDocuments();
+    if(empty($this->results)){
+      $this->emptyResultMessage();
+    }
+    else{
+      $this->form['container']['elements']['items']['results'] = [
+        '#prefix' => $this->getItemsPrefix('results'),
+        '#suffix' => $this->getItemsSuffix('results'),
+        '#weight' => 0,
+      ];
+      $this->getResults();
+    }
   }
 
   protected function getResults(){
@@ -136,20 +157,6 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
           '#markup' => render($element),
         ];
       }
-    }
-  }
-
-  protected function getItems(){
-    if(empty($this->results)){
-      $this->emptyResultMessage();
-    }
-    else{
-      $this->form['container']['elements']['items']['results'] = [
-        '#prefix' => $this->getItemsPrefix('results'),
-        '#suffix' => $this->getItemsSuffix('results'),
-        '#weight' => 0,
-      ];
-      $this->getResults();
     }
   }
 
@@ -225,7 +232,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     if($query == $queryString){
       $queryString['page_number'] = ('pagerCallback' == $form_state->getTriggeringElement()['#ajax']['callback'][1])
         ? $form_state->getTriggeringElement()['#value']
-        : $this->pagination['page'];
+        : $this->searchBuilder->paginationGet('page');
     }
     else {
       $queryString['page_number'] = 1;
@@ -245,6 +252,13 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
       $queryString
     );
     $form_state->setRedirectUrl($url);
+  }
+
+  /**
+   * @return array
+   */
+  public function getDefinition() : array {
+    return $this->definition;
   }
 
 }

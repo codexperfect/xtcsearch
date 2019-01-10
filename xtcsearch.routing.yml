@@ -1,11 +1,15 @@
 xtcsearch.search:
-  path: '/xtc_search'
+  path: '/xtcsearch/search'
   defaults:
-    _controller: '\Drupal\xtcsearch\Controller\SearchController::search'
+    _controller: '\Drupal\xtcsearch\Controller\XtcSearchController::search'
     _title: 'XTC Search'
+  requirements:
+    _permission: 'access content'
 
 xtcsearch.autocomplete:
-  path: '/xtc_search/autocomplete/{field_name}/{count}'
+  path: '/xtcsearch/autocomplete/{field_name}/{count}'
   defaults:
-    _controller: '\Drupal\xtcsearch\Controller\SearchController::handleAutocomplete'
+    _controller: '\Drupal\xtcsearch\Controller\XtcSearchController::handleAutocomplete'
     _format: json
+  requirements:
+    _permission: 'access content'

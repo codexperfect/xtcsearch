@@ -50,10 +50,11 @@ trait PagerTrait
 
   protected function getPagination() {
     $type = \Drupal::service('plugin.manager.xtcsearch_pager');
-    if(!empty($this->definition['pager'])){
-      foreach ($this->definition['pager'] as $name => $value) {
-        $this->searchBuilder->paginationSet($name, $value);
-      }
+    if(empty($this->definition['pager'])){
+      $this->definition['pager'] = ['name' => 'nopager'];
+    }
+    foreach ($this->definition['pager'] as $name => $value) {
+      $this->searchBuilder->paginationSet($name, $value);
     }
     if(!empty($this->searchBuilder->paginationGet('name'))){
       $this->pager = $type->createInstance($this->searchBuilder->paginationGet('name'));

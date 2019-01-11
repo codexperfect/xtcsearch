@@ -30,7 +30,6 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
       '#attributes' => [
         'class' => [
           'form-control',
-          'col-11',
           'SearchBig',
           'fontcss',
         ],

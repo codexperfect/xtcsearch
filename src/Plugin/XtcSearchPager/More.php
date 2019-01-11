@@ -60,7 +60,6 @@ class More extends XtcSearchPagerPluginBase
       ],
       '#prefix' => '<div id="pagination" class="row mb-50 mx-0"> <div class="col-12 text-center">',
       '#suffix' => '</div> </div>',
-      //      '#weight' => count($this->results) + 100, //Granted to be the last element
     ];
   }
 

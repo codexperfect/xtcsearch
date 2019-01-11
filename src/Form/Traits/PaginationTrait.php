@@ -42,7 +42,6 @@ trait PaginationTrait
   protected function initPagination(){
     if(!empty($this->definition['pager'])){
       foreach ($this->definition['pager'] as $name => $value) {
-//        $this->pagination[$name] = $value;
         $this->paginationSet($name, $value);
       }
     }

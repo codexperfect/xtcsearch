@@ -4,6 +4,7 @@ namespace Drupal\xtcsearch\PluginManager\XtcSearchPager;
 
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Plugin\PluginInspectionInterface;
+use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\xtcsearch\Form\XtcSearchFormBase;
 use Drupal\xtcsearch\Form\XtcSearchFormInterface;
@@ -124,6 +125,7 @@ abstract class XtcSearchPagerPluginBase extends PluginBase
 
   public function callBack(array $form, FormStateInterface $form_state) {
     // TODO: Implement callBack() method.
+    return New AjaxResponse();
   }
 
 }

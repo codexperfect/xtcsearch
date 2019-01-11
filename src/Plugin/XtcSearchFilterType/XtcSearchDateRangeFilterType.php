@@ -32,14 +32,12 @@ class XtcSearchDateRangeFilterType extends XtcSearchRangeFilterType
 
   public function getRequest(){
     $value = $this->getDefault();
-    $debDate = strtotime('01'.'-'.$value['month'].'-'.$value['year']);
-    $finDate = strtotime('+1 month', $debDate);
+    $debDate = strtotime($value['day'].'-'.$value['month'].'-'.$value['year']);
     $format = 'd/m/Y';
     return [
       'range' => [
         'startDate' => [
           'gte' => date($format, $debDate),
-          'lte' => date($format, $finDate),
           'format' => 'dd/MM/yyyy',
         ],
       ],
@@ -113,6 +111,7 @@ class XtcSearchDateRangeFilterType extends XtcSearchRangeFilterType
 
   public function getDefault() {
     return [
+      'day' => \Drupal::request()->get('day') ?? date('d'),
       'month' => \Drupal::request()->get('month') ?? date('m'),
       'year' => \Drupal::request()->get('year') ?? date('Y'),
     ];

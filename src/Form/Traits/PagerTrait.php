@@ -59,23 +59,22 @@ trait PagerTrait
       $this->pager = $type->createInstance($this->searchBuilder->paginationGet('name'));
     }
 
-    if($this->pager instanceof XtcSearchPagerPluginBase){
-      $this->pager->setXtcSearchForm($this);
-      foreach ($this->searchBuilder->getPagination() as $name => $value){
-        $this->pager->set($name, $value);
-      }
-      foreach ($this->pager->getLibs() as $lib) {
-        $this->form['#attached']['library'][] = $lib;
-      }
-      $this->form['container']['page_number'] = [
-        '#type' => 'hidden',
-        '#value' => $this->searchBuilder->paginationGet('name'),
-        '#attributes' => [
-          'id' => ['page_number'],
-        ],
-      ];
-      $this->form['container']['elements']['items']['ajax_'.$this->pager->getPluginId()] = $this->pager->getPager();
+    $this->pager->setXtcSearchForm($this);
+    foreach ($this->searchBuilder->getPagination() as $name => $value){
+      $this->pager->set($name, $value);
     }
+    foreach ($this->pager->getLibs() as $lib) {
+      $this->form['#attached']['library'][] = $lib;
+    }
+    $this->form['container']['page_number'] = [
+      '#type' => 'hidden',
+//      '#value' => $this->searchBuilder->paginationGet('name'),
+      '#value' => $this->searchBuilder->paginationGet('page'),
+      '#attributes' => [
+        'id' => ['page_number'],
+      ],
+    ];
+    $this->form['container']['elements']['items']['ajax_'.$this->pager->getPluginId()] = $this->pager->getPager();
   }
 
 }

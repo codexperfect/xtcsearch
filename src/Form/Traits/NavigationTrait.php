@@ -9,6 +9,7 @@
 namespace Drupal\xtcsearch\Form\Traits;
 
 
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 
 /**
@@ -32,6 +33,11 @@ trait NavigationTrait
    */
   protected $nav = [];
 
+  /**
+   * @var array
+   */
+  protected $links = [];
+
 
   protected function initNav(){
     if(!empty($this->definition['nav'])){
@@ -51,6 +57,17 @@ trait NavigationTrait
     if (!empty($this->nav['bottom_navigation'])) {
       $this->getBottomNavigation();
     }
+
+    if (!empty($this->nav['top_link']) || !empty($this->nav['bottom_link'])) {
+      $this->preProcessLinks();
+      $this->buildLinks();
+    }
+//    if (!empty($this->nav['top_link'])) {
+//      $this->getTopLink();
+//    }
+//    if (!empty($this->nav['bottom_link'])) {
+//      $this->getBottomLink();
+//    }
   }
 
   public function getNav() {
@@ -61,6 +78,60 @@ trait NavigationTrait
     $this->navigation['next']['label'] = 'next';
     $this->navigation['next']['link'] = Url::fromRoute($this->getRouteName())
                                            ->toString();
+  }
+
+  protected function preProcessLinks(){
+    $links = [
+      'top_link' => $this->nav['top_link'] ?? [],
+      'bottom_link' => $this->nav['bottom_link'] ?? [],
+    ];
+    foreach($links as $name => $link){
+      if(!empty($link['type'])){
+        $this->links[$name] = [
+          'type' => $link['type'] ?? '',
+          'label' => $link['label'] ?? 'View',
+          'route' => $link['route'] ?? '',
+          'url' => $link['url'] ?? '',
+          'path' => $link['path'] ?? '',
+          'parameters' => $link['parameters'] ?? [],
+          'options' => $link['options'] ?? [],
+        ];
+      }
+    }
+  }
+
+  protected function buildLinks() {
+    foreach($this->links as $name => $link) {
+      switch($link['type']){
+        case 'route':
+          $url = $this->buildLinkFromRoute($link);
+          break;
+        case 'url':
+          $url = $this->buildLinkFromUrl($link);
+          break;
+        case 'path':
+          $url = $this->buildLinkFromPath($link);
+          break;
+        default:
+      }
+      if(!empty($url)){
+        $this->form['xtc_links'][$name] = [
+          'label' => $link['label'],
+          'url' => $url,
+        ];
+      }
+    }
+  }
+
+  protected function buildLinkFromRoute($link){
+    return Url::fromRoute($link['route'], $link['parameters'])
+              ->toString();
+  }
+  protected function buildLinkFromUrl($link){
+    return Url::fromUri($link['url'], ['absolute' => true])->toString();
+  }
+  protected function buildLinkFromPath($link){
+    return Url::fromUri($link['path'], ['absolute' => false])->toString();
   }
 
   protected function getTopNavigation() {

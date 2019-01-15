@@ -32,6 +32,7 @@ abstract class XtcSearchBlockBase extends BlockBase
   }
 
   protected function getLinks($build){
+    $links = [];
     foreach(['top_link', 'bottom_link'] as $name){
       if(!empty($build['xtc_links'][$name])){
         $links[$name] = [

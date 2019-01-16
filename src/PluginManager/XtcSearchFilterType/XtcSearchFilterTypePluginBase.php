@@ -93,18 +93,20 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
   public function getRequest(){
     $request = \Drupal::request();
     $must = [];
-    if(!empty($request->get($this->getQueryName())) ) {
-      if (!is_array($request->get($this->getQueryName()))) {
-        $filterRequest = $this->getDefault();
-        $values = array_values($filterRequest);
+    $values = [];
+    if(!empty($value = $request->get($this->getQueryName())) ) {
+      if(is_array($value) && !is_string($value)){
+        $values = array_filter(array_values($request->get($this->getQueryName())));
       }
-      else {
-        $values = array_values($request->get($this->getQueryName()));
+      else{
+        $filterRequest = $this->getDefault();
+        $values = array_filter(array_values($filterRequest));
       }
     }
     if(!empty($values) ){
       foreach ($values as $key => $value) {
-        $must['bool']['should'][0][$key] = ['term' => [$this->getFieldName() => $value]];
+        $must['bool']['should'][0][$key] = ['term' => [$this->getFieldName()
+        => $value]] ?? [];
       }
     }
     return $must;
@@ -158,9 +160,11 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
   public function toQueryString($input) {
     $value = $input[$this->getQueryName()] ?? \Drupal::request()->get
       ($this->getQueryName());
+    if(empty($value)){
+      $value = '';
+    }
     if(!empty($value) && is_array($value) && !is_string($value)){
-//      $value = array_flip(array_flip(array_values(array_filter($value))));
-      $value = array_filter(array_values(array_filter($value)));
+      $value = array_values(array_filter($value));
     }
     return Json::encode($value);
   }

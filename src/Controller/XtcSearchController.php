@@ -11,17 +11,24 @@ namespace Drupal\xtcsearch\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\xtc\XtendedContent\API\Config;
+use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterDefault;
+use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class XtcSearchController extends ControllerBase
 {
 
+  /**
+   * @var array
+   */
+  protected $form;
+
   public function search() {
-    $form = Config::getSearch('xtc_search');
+    $this->form = Config::getSearch('xtc_search');
     return [
       '#theme' => 'xtc_search_form',
       '#response' => ['headline' => $this->getTitle()],
-      '#form_events' => $form,
+      '#form_events' => $this->form,
     ];
   }
 

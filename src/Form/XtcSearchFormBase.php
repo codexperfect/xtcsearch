@@ -220,7 +220,9 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
     // Filters
     foreach ($this->filters as $name => $container) {
       $filter = $this->loadFilter($name);
-      $queryString[$filter->getQueryName()] = $filter->toQueryString($input);
+      if(!empty($string = $filter->toQueryString($input))){
+        $queryString[$filter->getQueryName()] = $string;
+      }
     }
 
     // Pager

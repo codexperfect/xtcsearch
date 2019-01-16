@@ -10,7 +10,6 @@ namespace Drupal\xtcsearch\Form\Traits;
 
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\xtcsearch\PluginManager\XtcSearchPager\XtcSearchPagerPluginBase;
 
 trait PagerTrait
 {
@@ -53,6 +52,9 @@ trait PagerTrait
     if(empty($this->definition['pager'])){
       $this->definition['pager'] = ['name' => 'nopager'];
     }
+    if('nopager' == $this->definition['pager']){
+      return;
+    }
     foreach ($this->definition['pager'] as $name => $value) {
       $this->searchBuilder->paginationSet($name, $value);
     }
@@ -67,15 +69,8 @@ trait PagerTrait
     foreach ($this->pager->getLibs() as $lib) {
       $this->form['#attached']['library'][] = $lib;
     }
-    $this->form['container']['page_number'] = [
-      '#type' => 'hidden',
-//      '#value' => $this->searchBuilder->paginationGet('name'),
-      '#value' => $this->searchBuilder->paginationGet('page'),
-      '#attributes' => [
-        'id' => ['page_number'],
-      ],
-    ];
-    $this->form['container']['elements']['items']['ajax_'.$this->pager->getPluginId()] = $this->pager->getPager();
+    $this->form['container']['elements']['items']['ajax_'.$this->pager->getPluginId()] =
+      $this->pager->getPager($this->searchBuilder->paginationGet('page'));
   }
 
 }

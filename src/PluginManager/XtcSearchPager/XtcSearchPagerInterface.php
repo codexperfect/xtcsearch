@@ -19,7 +19,12 @@ interface XtcSearchPagerInterface {
 
   public function callBack(array $form, FormStateInterface $form_state);
 
-  public function getPager();
+  /**
+   * @param int $pageNumber
+   *
+   * @return mixed
+   */
+  public function getPager($pageNumber);
 
   public function getLibs();
 

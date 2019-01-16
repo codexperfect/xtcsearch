@@ -74,8 +74,8 @@ abstract class XtcSearchPagerPluginBase extends PluginBase
     return (string) $this->pluginDefinition['label'];
   }
 
-  public function getPager(){
-    $this->initPageNumber();
+  public function getPager($pageNumber){
+    $this->initPageNumber($pageNumber);
     $this->buildPager();
     return $this->pager;
   }
@@ -96,14 +96,18 @@ abstract class XtcSearchPagerPluginBase extends PluginBase
     $this->settings[$name] = $value;
   }
 
-  protected function initPageNumber(){
+  public function initPageNumber($pageNumber = null){
     $this->pageNumber = [
       '#type' => 'hidden',
-      '#value' => $this->settings['page'],
+      '#value' => $pageNumber ?? $this->settings['page'],
       '#attributes' => [
         'id' => ['page_number'],
       ],
     ];
+  }
+
+  public function getPageNumber(){
+    return $this->pageNumber;
   }
 
   protected function buildPager(){

@@ -62,14 +62,18 @@ class XtcSearchDateSelectFilterType extends XtcSearchSelectFilterType
       ];
 
       foreach($results as $result) {
-        $name = $this->options()[$result['key']]['from'];
-        $opt[$name] = t($result['key']) . ' (' . $result['doc_count'] . ')';
+        if(!empty($result['doc_count'])){
+          $name = $this->options()[$result['key']]['from'];
+          $opt[$name] = t($result['key']) . ' (' . $result['doc_count'] . ')';
+        }
       }
-
       // Replacer dans l'ordre des options
       foreach($this->options() as $name => $value) {
-        $options[$value['from']] = $opt[$value['from']];
+        if(!empty($opt[$value['from']])){
+          $options[$value['from']] = $opt[$value['from']];
+        }
       }
+
     }
     return $options;
   }

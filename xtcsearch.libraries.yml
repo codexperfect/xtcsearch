@@ -26,7 +26,6 @@ filter:
   dependencies:
     - core/jquery
     - core/drupalSettings
-    - xtcsearch/masonry
     - xtcsearch/checkbox
 
 masonry:

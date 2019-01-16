@@ -47,5 +47,12 @@ function xtcsearch_theme($existing, $type, $theme, $path) {
       ],
       'template' => 'xtc-search',
     ],
+    'xtc_search_title_form' => [
+      'variables' => [
+        'response' => null,
+        'form' => null,
+      ],
+      'template' => 'xtc-search-title',
+    ],
   ];
 }

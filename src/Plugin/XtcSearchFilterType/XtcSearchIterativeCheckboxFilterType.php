@@ -264,7 +264,8 @@ class XtcSearchIterativeCheckboxFilterType extends XtcSearchFilterTypePluginBase
            && is_array($items['values'])
            && !is_string($items['values'])
         ){
-          $item = @array_flip(@array_flip(@array_values($items['values'])));
+//          $item = @array_flip(@array_flip(@array_values($items['values'])));
+          $item = array_filter(array_values($items['values']));
           if(!empty($item)){
             $value = array_merge($value, $item);
           }

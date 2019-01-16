@@ -97,6 +97,13 @@ trait QueryTrait
         }
       }
     }
+    if(!empty($this->musts_not)){
+      foreach ($this->musts_not as $request) {
+        if (!empty($request)) {
+          $must['query']['bool']['must_not'][] = $request;
+        }
+      }
+    }
     $this->query->setRawQuery($must);
 
     $this->setIndices();
@@ -158,9 +165,7 @@ trait QueryTrait
     $request = \Drupal::request();
     if(empty($this->resultSet)
        || !$this->searched) {
-      $page = (!empty($request->get('page_number')) &&
-               is_integer($request->get('page_number'))
-      ) ? $request->get('page_number') : 1;
+      $page = (!empty($request->get('page_number'))) ? intval($request->get('page_number')) : 1;
       $this->paginationSet('page', $page);
 
       $from = $this->paginationGet('size')

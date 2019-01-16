@@ -28,7 +28,12 @@ trait FilterSearchTrait
   protected function getCriteria() {
     foreach($this->filters as $name => $container) {
       $filter = $this->loadFilter($name);
-      $this->musts[$filter->getQueryName()] = $filter->getRequest();
+      if('exclude' == $filter->getPluginId()){
+        $this->musts_not[$filter->getQueryName()] = $filter->getRequest();
+      }
+      else{
+        $this->musts[$filter->getQueryName()] = $filter->getRequest();
+      }
       $this->addCompletion($filter);
       $this->addSuggest($filter);
     }

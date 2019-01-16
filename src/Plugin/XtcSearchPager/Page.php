@@ -31,7 +31,8 @@ class Page extends XtcSearchPagerPluginBase
   protected function buildPager(){
     $this->pager['container']['page_number'] = $this->pageNumber;
     $this->pager['submit']['container_pagination'] = [
-      '#prefix' => '<div class="row justify-content-center"> <nav> <div id="ajax_pagination" class="pagination"> ',
+      '#prefix' => '<div class="row justify-content-center"> <nav> <div id="ajax_pagination" 
+class="pagination"> ',
       '#suffix' => '</div> </nav></div>',
       '#weight' => 1000,
     ];
@@ -94,11 +95,6 @@ class Page extends XtcSearchPagerPluginBase
               $page['isCurrent'] ? 'disabled': '',
             ],
           'onclick' => 'window.location = "' . $link . '"; return false;',
-        ],
-        '#states' => [
-          'visible' => [
-            'input[name="page_number"]' => ['!value' => $page['num']],
-          ],
         ],
       ];
     }

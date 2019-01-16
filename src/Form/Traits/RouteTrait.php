@@ -15,7 +15,7 @@ trait RouteTrait
 {
 
   public function getRouteName(){
-    return $this->definition['routeName'];
+    return $this->definition['routeName'] ?? \Drupal::routeMatch()->getRouteName();
   }
 
   public function searchRoute(){
@@ -27,7 +27,7 @@ trait RouteTrait
    * @return \Drupal\Core\GeneratedUrl|string
    */
   protected function resetLink(){
-    $resetRoute = $this->definition['resetRoute'];
+    $resetRoute = $this->definition['resetRoute'] ?? \Drupal::routeMatch()->getRouteName();
     return Url::fromRoute($resetRoute)->toString();
   }
 

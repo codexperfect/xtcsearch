@@ -31,6 +31,7 @@ class More extends XtcSearchPagerPluginBase
   }
 
   protected function buildPager(){
+    $this->pager['container']['page_number'] = $this->pageNumber;
     $this->numberOfPages = ceil($this->settings['total'] / $this->settings['size']);
     $this->numberOfPages = $this->numberOfPages > 1 ? $this->numberOfPages : 1;
 

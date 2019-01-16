@@ -74,7 +74,8 @@ class More extends XtcSearchPagerPluginBase
     $response = new AjaxResponse();
     $response->addCommand(new AppendCommand('#all-items', $form['container']['elements']['items']['results']));
 
-    $removePagination = ($form_state->getUserInput()['page_number'] == (ceil($this->settings['total'] / $this->settings['size'])));
+    $removePagination = ((int) $form_state->getUserInput()['page_number'] == (
+      (int) ceil($this->settings['total'] / $this->settings['size'])));
     if ($removePagination) {
       $response->addCommand(new RemoveCommand('#pagination'));
     }

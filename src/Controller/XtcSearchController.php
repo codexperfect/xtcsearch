@@ -43,11 +43,12 @@ class XtcSearchController extends ControllerBase
   }
 
   public function getTitle() {
-    return 'Search';
+    $route = \Drupal::routeMatch();
+    return $route->getRouteObject()->getDefaults()['_title'];
   }
 
-  protected function getType() {
-    return 'document';
-  }
+//  protected function getType() {
+//    return 'document';
+//  }
 
 }

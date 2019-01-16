@@ -38,6 +38,11 @@ trait QueryTrait
   protected $search;
 
   /**
+   * @var bool
+   */
+  protected $searched = false;
+
+  /**
    * @var \Elastica\ResultSet
    */
   protected $resultSet;

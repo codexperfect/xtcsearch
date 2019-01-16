@@ -48,8 +48,6 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
    */
   protected $definition;
 
-  protected $searched = FALSE;
-
   protected $isCallback = FALSE;
 
   /**

@@ -146,8 +146,8 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
     return urlencode($value);
   }
 
-  public function getDefault() {
-    return urldecode(\Drupal::request()->get($this->getQueryName()));
+  public function setDefault() {
+    $this->default = urldecode(\Drupal::request()->get($this->getQueryName()));
   }
 
   protected function getAutocomplete(){

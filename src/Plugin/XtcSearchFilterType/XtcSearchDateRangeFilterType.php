@@ -109,8 +109,8 @@ class XtcSearchDateRangeFilterType extends XtcSearchRangeFilterType
     ];
   }
 
-  public function getDefault() {
-    return [
+  public function setDefault() {
+    $this->default = [
       'day' => \Drupal::request()->get('day') ?? date('d'),
       'month' => \Drupal::request()->get('month') ?? date('m'),
       'year' => \Drupal::request()->get('year') ?? date('Y'),

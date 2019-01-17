@@ -54,8 +54,8 @@ class XtcSearchAutocompleteFilterType extends XtcSearchFilterTypePluginBase
     return [];
   }
 
-  public function getDefault() {
-    return urldecode(\Drupal::request()->get($this->getQueryName()));
+  public function setDefault() {
+    $this->default = urldecode(\Drupal::request()->get($this->getQueryName()));
   }
 
   protected function getFields() : array {

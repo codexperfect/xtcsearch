@@ -214,19 +214,8 @@ class XtcSearchIterativeCheckboxFilterType extends XtcSearchFilterTypePluginBase
   }
 
   public function getRequest(){
-    $request = \Drupal::request();
     $must = [];
-    if(!empty($request->get($this->getQueryName())) ) {
-      if (!is_array($request->get($this->getQueryName()))) {
-        $filterRequest = $this->getDefault();
-        foreach($filterRequest as $key => $request){
-          $values[$key] = array_values($request);
-        }
-      }
-      else {
-        $values = array_values($request->get($this->getQueryName()));
-      }
-    }
+    $values = $this->getDefault();
     if(!empty($values) ){
       foreach ($values as $field => $items) {
         foreach($items as $key => $item){
@@ -274,6 +263,24 @@ class XtcSearchIterativeCheckboxFilterType extends XtcSearchFilterTypePluginBase
       }
     }
     return Json::encode($values);
+  }
+
+  public function setDefault() {
+    $values = [];
+    $request = \Drupal::request();
+    if(!empty($request->get($this->getQueryName()))){
+      if (!is_array($request->get($this->getQueryName()))) {
+        $filterRequest = Json::decode($request->get($this->getQueryName()))
+                         ?? $request->get($this->getQueryName());
+        foreach($filterRequest as $key => $request){
+          $values[$key] = $request;
+        }
+      }
+      else{
+        $values = $request->get($this->getQueryName());
+      }
+    }
+    $this->default = $values;
   }
 
 }

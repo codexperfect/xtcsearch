@@ -37,6 +37,20 @@ trait ContainerTrait
       '#suffix' => $this->getContainerSuffix($name),
       '#weight' => -10,
     ];
+    $this->getDescription($name);
+  }
+
+  protected function getDescription($name) {
+    $route = \Drupal::routeMatch();
+    $parameters = $route->getRouteObject()->getDefaults();
+    if(!empty($parameters['description'])){
+      $this->form['container']['container_'.$name]['description'] = [
+        '#type' => 'item',
+        '#markup' => '<p>'.$parameters['description'].'</p>',
+        '#prefix' => $this->getContainerPrefix('description'),
+        '#suffix' => $this->getContainerSuffix('description'),
+      ];
+    }
   }
 
   protected function containerElements(){

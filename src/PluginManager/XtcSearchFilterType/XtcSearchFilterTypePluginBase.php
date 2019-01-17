@@ -40,6 +40,8 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
 
   protected $itemName;
 
+  protected $default;
+
   /**
    * @var XtcSearchFilterDefault
    */
@@ -91,17 +93,10 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
   }
 
   public function getRequest(){
-    $request = \Drupal::request();
     $must = [];
     $values = [];
-    if(!empty($value = $request->get($this->getQueryName())) ) {
-      if(is_array($value) && !is_string($value)){
-        $values = array_filter(array_values($request->get($this->getQueryName())));
-      }
-      else{
-        $filterRequest = $this->getDefault();
-        $values = array_filter(array_values($filterRequest));
-      }
+    if(!empty($value = $this->getDefault())) {
+      $values = array_filter(array_values($value));
     }
     if(!empty($values) ){
       foreach ($values as $key => $value) {
@@ -152,8 +147,16 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
   }
 
   public function getDefault() {
+    if(empty($this->default)){
+      $this->setDefault();
+    }
+    return $this->default;
+  }
+
+  public function setDefault() {
     if(!empty(\Drupal::request()->get($this->getQueryName()))){
-      return Json::decode(\Drupal::request()->get($this->getQueryName())) ?? \Drupal::request()->get($this->getQueryName());
+      $this->default = Json::decode(\Drupal::request()->get($this->getQueryName()))
+                 ?? \Drupal::request()->get($this->getQueryName());
     }
   }
 

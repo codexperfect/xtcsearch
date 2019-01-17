@@ -11,8 +11,6 @@ namespace Drupal\xtcsearch\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\xtc\XtendedContent\API\Config;
-use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterDefault;
-use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class XtcSearchController extends ControllerBase
@@ -33,14 +31,9 @@ class XtcSearchController extends ControllerBase
   }
 
   /**
-   */
-
-  /**
    * Handler for autocomplete request.
    *
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   * @param string                                    $searchId
-   * @param string                                    $string
+   * @param $searchId
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
@@ -53,9 +46,5 @@ class XtcSearchController extends ControllerBase
     $route = \Drupal::routeMatch();
     return $route->getRouteObject()->getDefaults()['_title'];
   }
-
-//  protected function getType() {
-//    return 'document';
-//  }
 
 }

@@ -53,8 +53,8 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
         if(!empty($suggestion[0]['options'])){
           foreach ($suggestion[0]['options'] as $key => $value) {
             $text = $this->cleanup(strtolower($value['text']));
-            $url = Url::fromRoute($this->form->getRouteName(), [$this->getPluginId() =>
-              urlencode($text)]);
+//            $url = Url::fromRoute($this->form->getRouteName(), [$this->getPluginId() => urlencode($text)]);
+            $url = $this->form->searchRoute([$this->getPluginId() => urlencode($text)]);
             $suggestionsList[] = [
               '#type' => 'link',
               '#title' => $value['text'],

@@ -10,9 +10,6 @@ namespace Drupal\xtcsearch\Form;
 
 
 use Drupal\Core\Form\FormInterface;
-use Elastica\Client;
-use Elastica\Query;
-use Elastica\ResultSet;
 
 interface XtcSearchFormInterface extends FormInterface
 {

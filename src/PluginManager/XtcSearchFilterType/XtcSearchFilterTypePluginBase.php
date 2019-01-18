@@ -169,7 +169,9 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
     if(!empty($value) && is_array($value) && !is_string($value)){
       $value = array_values(array_filter($value));
     }
-    return Json::encode($value);
+    if(!empty($value)){
+      return Json::encode($value);
+    }
   }
 
   protected function getLibraries():array {

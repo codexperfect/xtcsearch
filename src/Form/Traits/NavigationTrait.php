@@ -73,11 +73,9 @@ trait NavigationTrait
   public function getNav() {
     $this->navigation['current'] = '';
     $this->navigation['previous']['label'] = 'previous';
-    $this->navigation['previous']['link'] = Url::fromRoute($this->getRouteName())
-                                               ->toString();
+    $this->navigation['previous']['link'] = $this->searchRoute();
     $this->navigation['next']['label'] = 'next';
-    $this->navigation['next']['link'] = Url::fromRoute($this->getRouteName())
-                                           ->toString();
+    $this->navigation['next']['link'] = $this->searchRoute();
   }
 
   protected function preProcessLinks(){

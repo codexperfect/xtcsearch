@@ -7,7 +7,6 @@ use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\xtcsearch\Form\XtcSearchFormBase;
-use Drupal\xtcsearch\Form\XtcSearchFormInterface;
 
 /**
  * Base class for xtcsearch_pager plugins.
@@ -32,7 +31,7 @@ abstract class XtcSearchPagerPluginBase extends PluginBase
   var $libs = [];
 
   /**
-   * @var XtcSearchFormInterface
+   * @var XtcSearchFormBase
    */
   var $xtcSearchForm;
 
@@ -82,6 +81,10 @@ abstract class XtcSearchPagerPluginBase extends PluginBase
 
   protected function getRouteName(){
     return $this->xtcSearchForm->getRouteName();
+  }
+
+  protected function searchRoute($query = []){
+    return $this->xtcSearchForm->searchRoute($query);
   }
 
   public function getLibs(){

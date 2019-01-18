@@ -40,6 +40,9 @@ class XtcSearchCheckboxFilterType extends XtcSearchFilterTypePluginBase
     }
     $route = \Drupal::routeMatch();
     $routeParameter = $route->getParameters()->get($queryName) ?? [];
+    if(!is_array($routeParameter)) {
+      $routeParameter = [$routeParameter];
+    }
     $routeOptions = $route->getRouteObject()->getOptions()['parameters'] ?? [];
     $routeOption = $routeOptions[$queryName] ?? [];
 

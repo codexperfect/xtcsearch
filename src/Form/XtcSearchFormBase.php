@@ -11,7 +11,6 @@ namespace Drupal\xtcsearch\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 use Drupal\xtcsearch\Form\Traits\ContainerTrait;
 use Drupal\xtcsearch\Form\Traits\FilterContainerTrait;
 use Drupal\xtcsearch\Form\Traits\NavigationTrait;
@@ -247,10 +246,7 @@ abstract class XtcSearchFormBase extends FormBase implements XtcSearchFormInterf
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $queryString = $this->submitQueryString($form, $form_state);
     $this->preprocessQueryString($queryString);
-    $url = Url::fromRoute(
-      $this->getRouteName(),
-      $queryString
-    );
+    $url = $this->searchRoute($queryString, false);
     $form_state->setRedirectUrl($url);
   }
 

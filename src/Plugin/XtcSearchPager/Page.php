@@ -50,8 +50,8 @@ class="pagination"> ',
     $query = $request->query->all();
     if($previous = $this->paginator->getPrevPage()){
       $query['page_number'] = $this->paginator->getPrevPage();
-      $link = Url::fromRoute($this->getRouteName(), $query)
-        ->toString();
+//      $link = Url::fromRoute($this->getRouteName(), $query)->toString();
+      $link = $this->searchRoute($query);
       $form['prev'] = [
         '#type' => 'submit',
         '#value' => '',
@@ -81,8 +81,8 @@ class="pagination"> ',
       if ($page['num'] == '...' && $key > ($this->paginator->getMaxPagesToShow()/2)){
         $query['page_number'] = $this->paginator->getCurrentPage() + $this->paginator->getMaxPagesToShow() -2;
       }
-      $link = Url::fromRoute($this->getRouteName(), $query)
-        ->toString();
+//      $link = Url::fromRoute($this->getRouteName(), $query)->toString();
+      $link = $this->searchRoute($query);
       $form[$key] = [
         '#type' => 'submit',
         '#value' => $page['num'],
@@ -100,8 +100,8 @@ class="pagination"> ',
     }
     if($next = $this->paginator->getNextPage()){
       $query['page_number'] = $this->paginator->getNextPage();
-      $link = Url::fromRoute($this->getRouteName(), $query)
-        ->toString();
+//      $link = Url::fromRoute($this->getRouteName(), $query)->toString();
+      $link = $this->searchRoute($query);
       $form['next'] = [
         '#type' => 'submit',
         '#value' => '',

@@ -18,9 +18,9 @@ trait RouteTrait
     return $this->definition['routeName'] ?? \Drupal::routeMatch()->getRouteName();
   }
 
-  public function searchRoute(){
-    return Url::fromRoute($this->getRouteName())
-              ->toString();
+  public function searchRoute($query = [], $string = true){
+    $url = Url::fromRoute($this->getRouteName(), $query);
+    return ($string) ? $url->toString() : $url;
   }
 
   /**

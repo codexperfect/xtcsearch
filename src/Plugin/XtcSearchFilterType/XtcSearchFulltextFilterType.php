@@ -34,7 +34,7 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
           'fontcss',
         ],
         'id' => [
-          'searchInput-main',
+          'searchInput-'.$this->getFilterId(),
         ],
         'onchange' => 'window.location.href="'. $this->form->searchRoute() .'?fulltext=" + encodeURI(this.value);',
       ],

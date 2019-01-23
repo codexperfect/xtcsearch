@@ -49,19 +49,24 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
       $suggestions = $this->form->getResultSet()->getSuggests();
 
       $suggestionsList = [];
+      $titleList = [];
       foreach($suggestions as $suggestion){
         if(!empty($suggestion[0]['options'])){
           foreach ($suggestion[0]['options'] as $key => $value) {
-            $text = $this->cleanup(strtolower($value['text']));
-//            $url = Url::fromRoute($this->form->getRouteName(), [$this->getPluginId() => urlencode($text)]);
-            $url = $this->form->searchRoute([$this->getPluginId() => urlencode($text)]);
-            $suggestionsList[] = [
-              '#type' => 'link',
-              '#title' => $value['text'],
-              '#url' => $url,
-              '#prefix' => '<p class="suggestion-retour-meta float-left">',
-              '#suffix' => '</p>',
-            ];
+            $value['text'] = strtolower($value['text']);
+            if(!in_array($value['text'], $titleList)) {
+              $titleList[] = $value['text'];
+              $text = $this->cleanup($value['text']);
+              $url = Url::fromRoute($this->form->getRouteName(), [$this->getPluginId() => urlencode($text)]);
+              //$url = $this->form->searchRoute([$this->getPluginId() => urlencode($text)]);
+              $suggestionsList[] = [
+                '#type' => 'link',
+                '#title' => $value['text'],
+                '#url' => $url,
+                '#prefix' => '<p class="suggestion-retour-meta float-left">',
+                '#suffix' => '</p>',
+              ];
+            }
           }
         }
       }

@@ -6,7 +6,7 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Url;
+use Drupal\xtc\XtendedContent\API\Config;
 
 /**
  * Implements hook_help().
@@ -14,17 +14,7 @@ use Drupal\Core\Url;
 function xtcsearch_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     case 'help.page.xtcsearch':
-      $variables = [
-        ':xtcsearch' => Url::fromRoute('help.page', ['name' => 'xtcsearch'])->toString(),
-      ];
-
-      $output = '';
-      $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('The <a href=":xtcsearch">WebService Content</a> module provide features to pull and push indexes between Drupal instance and ElasticeSearch remote servers.', $variables) . '</p>';
-      $output .= '<h3>' . t('Uses') . '</h3>';
-      $output .= '<p>' . t('[to be completed]') . '</p>';
-
-      return $output;
+      return Config::getHelp('xtcsearch');
   }
 }
 

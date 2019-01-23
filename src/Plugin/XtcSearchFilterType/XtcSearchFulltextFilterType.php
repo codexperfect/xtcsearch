@@ -53,7 +53,7 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
       foreach($suggestions as $suggestion){
         if(!empty($suggestion[0]['options'])){
           foreach ($suggestion[0]['options'] as $key => $value) {
-            $value['text'] = strtolower($value['text']);
+            $value['text'] = strtolower(\Drupal::service('csoec_common.common_service')->replaceAccents($value['text']));
             if(!in_array($value['text'], $titleList)) {
               $titleList[] = $value['text'];
               $text = $this->cleanup($value['text']);

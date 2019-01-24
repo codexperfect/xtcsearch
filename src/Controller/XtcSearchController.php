@@ -21,12 +21,17 @@ class XtcSearchController extends ControllerBase
    */
   protected $form;
 
+  /**
+   * @return array
+   */
   public function search() {
     $this->form = Config::getSearch('xtc_search');
     return [
       '#theme' => 'xtc_search_form',
-      '#response' => ['headline' => $this->getTitle()],
-      '#form_events' => $this->form,
+      '#response' => [
+        'headline' => $this->getTitle(),
+      ],
+      '#form' => $this->form,
     ];
   }
 

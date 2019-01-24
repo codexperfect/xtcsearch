@@ -22,7 +22,7 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
    * @return array
    */
   public function getFilter(){
-    return [
+    $filter = [
       '#type' => 'search',
       '#title' => $this->getTitle(),
       '#placeholder' => $this->getPlaceholder(),
@@ -39,9 +39,12 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
         'onchange' => 'window.location.href="'. $this->form->searchRoute() .'?fulltext=" + encodeURI(this.value);',
       ],
       '#weight' => '1',
-      '#autocomplete_route_name' => $this->getAutocomplete()['service'],
-      '#autocomplete_route_parameters' => $this->getAutocomplete()['parameters'],
     ];
+    if($this->hasCompletion()){
+      $filter['#autocomplete_route_name'] = $this->getAutocomplete()['service'];
+      $filter['#autocomplete_route_parameters'] = $this->getAutocomplete()['parameters'];
+    }
+    return $filter;
   }
 
   public function getSuggest(){

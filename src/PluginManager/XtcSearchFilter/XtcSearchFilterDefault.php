@@ -3,6 +3,7 @@
 namespace Drupal\xtcsearch\PluginManager\XtcSearchFilter;
 
 use Drupal\Core\Plugin\PluginBase;
+use Drupal\xtc\XtendedContent\API\Config;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 
 /**
@@ -30,8 +31,7 @@ class XtcSearchFilterDefault extends PluginBase implements XtcSearchFilterInterf
   }
 
   protected function init(){
-    $types = \Drupal::service('plugin.manager.xtcsearch_filter_type');
-    $this->filter = $types->createInstance($this->getPluginDefinition()['type']);
+    $this->filter = Config::getXtcFilterType($this->getPluginDefinition()['type']);
     $this->filter->setFilter($this);
   }
 

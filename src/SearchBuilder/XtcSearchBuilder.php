@@ -21,6 +21,9 @@ class XtcSearchBuilder
   use QueryTrait;
   use PaginationTrait;
 
+
+  const TIMEOUT = 5;
+
   /**
    * @var array
    */
@@ -51,6 +54,10 @@ class XtcSearchBuilder
 
   public function getDocuments(){
     return $this->resultSet->getDocuments();
+  }
+
+  protected function getTimeout(){
+    return self::TIMEOUT;
   }
 
 }

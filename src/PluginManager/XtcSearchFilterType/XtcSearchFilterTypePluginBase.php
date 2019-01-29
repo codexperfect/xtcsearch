@@ -238,13 +238,15 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
        && $this->form instanceof XtcSearchFormBase
     ) {
       $search = $this->form->getResultSet();
-      $name = $this->getAggregations()[0]['name'];
-      try{
-        $agg = $search->getAggregation($name);
-      }
-      catch(InvalidException $e){
-      }
-      finally{
+      if(!empty($search)){
+        $name = $this->getAggregations()[0]['name'];
+        try{
+          $agg = $search->getAggregation($name);
+        }
+        catch(InvalidException $e){
+        }
+        finally{
+        }
       }
     }
     return $agg;

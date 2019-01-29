@@ -9,6 +9,7 @@
 namespace Drupal\xtcsearch\Form\Traits;
 
 
+use Drupal\xtc\XtendedContent\API\Config;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterDefault;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 
@@ -34,18 +35,8 @@ trait FilterTrait
    * @return \Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase
    */
   protected function loadFilter($name) : XtcSearchFilterTypePluginBase{
-    $filter = $this->getFilter($name);
+    $filter = Config::getXtcFilter($name);
     return $filter->getFilterType();
-  }
-
-  /**
-   * @param $name
-   *
-   * @return \Drupal\xtcsearch\PluginManager\XtcSearchFilter\XtcSearchFilterDefault
-   */
-  protected function getFilter($name) : XtcSearchFilterDefault{
-    $service = \Drupal::service('plugin.manager.xtcsearch_filter');
-    return  $service->createInstance($name);
   }
 
 

@@ -10,6 +10,7 @@ namespace Drupal\xtcsearch\Form\Traits;
 
 
 use Drupal\Core\Site\Settings;
+use Drupal\xtc\XtendedContent\API\Config;
 use Elastica\Client;
 use Elastica\Index;
 use Elastica\Query;
@@ -77,11 +78,12 @@ trait QueryTrait
 
   protected function initElastica() {
     $settings = Settings::get('csoec.serve_client')['xtc']['serve_client']['server'];
-    $server = \Drupal::service('plugin.manager.xtc_server')->getDefinition($this->definition['server']);
+    $server = Config::loadXtcServer($this->definition['server']);
     $env = $settings[$this->definition['server']]['env'] ?? $server['env'];
     $connection = [
       'host' => $server['connection'][$env]['host'],
       'port' => $server['connection'][$env]['port'],
+      'timeout' => $this->getTimeout(),
     ];
     $this->elastica = New Client($connection);
   }
@@ -181,13 +183,18 @@ trait QueryTrait
       $this->searchSort();
       $this->buildSuggest();
       $this->addAggregations();
-      $this->resultSet = $this->search->search($this->query);
+      try{
+        $this->resultSet = $this->search->search($this->query);
+      }
+      finally{
+      }
 
-      $this->paginationSet('total', $this->resultSet->getTotalHits());
-      $this->results = $this->resultSet->getDocuments();
-      $this->searched = true;
+      if(!empty($this->resultSet)){
+        $this->paginationSet('total', $this->resultSet->getTotalHits());
+        $this->results = $this->resultSet->getDocuments();
+        $this->searched = true;
+      }
     }
-
     return $this->resultSet;
   }
 

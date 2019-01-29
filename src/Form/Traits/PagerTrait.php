@@ -10,6 +10,7 @@ namespace Drupal\xtcsearch\Form\Traits;
 
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\xtc\XtendedContent\API\Config;
 
 trait PagerTrait
 {
@@ -48,7 +49,6 @@ trait PagerTrait
   }
 
   protected function getPagination() {
-    $type = \Drupal::service('plugin.manager.xtcsearch_pager');
     if(empty($this->definition['pager'])){
       $this->definition['pager'] = ['name' => 'nopager'];
     }
@@ -59,7 +59,7 @@ trait PagerTrait
       $this->searchBuilder->paginationSet($name, $value);
     }
     if(!empty($this->searchBuilder->paginationGet('name'))){
-      $this->pager = $type->createInstance($this->searchBuilder->paginationGet('name'));
+      $this->pager = Config::getXtcPager($this->searchBuilder->paginationGet('name'));
     }
 
     $this->pager->setXtcSearchForm($this);

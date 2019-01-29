@@ -48,7 +48,7 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
   }
 
   public function getSuggest(){
-    if($this->hasSuggest()){
+    if($this->hasSuggest() && !empty($this->form->getResultSet())){
       $suggestions = $this->form->getResultSet()->getSuggests();
 
       $suggestionsList = [];

@@ -77,7 +77,7 @@ trait QueryTrait
   }
 
   protected function initElastica() {
-    $settings = Settings::get('csoec.serve_client')['xtc']['serve_client']['server'];
+    $settings = Settings::get('xtc.serve_client')['xtc']['serve_client']['server'];
     $server = Config::loadXtcServer($this->definition['server']);
     $env = $settings[$this->definition['server']]['env'] ?? $server['env'];
     $connection = [

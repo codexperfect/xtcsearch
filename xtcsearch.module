@@ -6,7 +6,7 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\xtc\XtendedContent\API\Config;
+use Drupal\xtc\XtendedContent\API\Documentation;
 
 /**
  * Implements hook_help().
@@ -14,7 +14,7 @@ use Drupal\xtc\XtendedContent\API\Config;
 function xtcsearch_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     case 'help.page.xtcsearch':
-      return Config::getHelp('xtcsearch');
+      return Documentation::getHelp('xtcsearch');
   }
 }
 

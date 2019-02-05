@@ -62,12 +62,6 @@ trait NavigationTrait
       $this->preProcessLinks();
       $this->buildLinks();
     }
-//    if (!empty($this->nav['top_link'])) {
-//      $this->getTopLink();
-//    }
-//    if (!empty($this->nav['bottom_link'])) {
-//      $this->getBottomLink();
-//    }
   }
 
   public function getNav() {

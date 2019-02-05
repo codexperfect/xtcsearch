@@ -4,6 +4,7 @@ namespace Drupal\xtcsearch\Plugin\XtcSearchFilterType;
 
 
 use Drupal\Core\Url;
+use Drupal\xtc\XtendedContent\API\ToolBox;
 use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePluginBase;
 
 /**
@@ -56,7 +57,7 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
       foreach($suggestions as $suggestion){
         if(!empty($suggestion[0]['options'])){
           foreach ($suggestion[0]['options'] as $key => $value) {
-            $value['text'] = strtolower(\Drupal::service('csoec_common.common_service')->replaceAccents($value['text']));
+            $value['text'] = strtolower(ToolBox::replaceAccents($value['text']));
             if(!in_array($value['text'], $titleList)) {
               $titleList[] = $value['text'];
               $text = $this->cleanup($value['text']);

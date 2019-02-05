@@ -9,9 +9,6 @@
 namespace Drupal\xtcsearch\Form;
 
 
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
-
 class XtcSearchForm extends XtcSearchFormBase
 {
 

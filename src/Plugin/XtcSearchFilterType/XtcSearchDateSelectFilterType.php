@@ -17,7 +17,7 @@ use Elastica\Aggregation\DateRange;
 class XtcSearchDateSelectFilterType extends XtcSearchSelectFilterType
 {
 
-  public function getRequest() {
+  public function getRequest($default = []){
     if($published = $this->getDefault()){
       return [
         'range' => [

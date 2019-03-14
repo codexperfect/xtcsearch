@@ -29,15 +29,27 @@ class XtcSearchCheckboxFilterType extends XtcSearchFilterTypePluginBase
     }
   }
 
-  public function setDefault() {
+  public function setDefault($values = []) {
     $queryName = $this->getQueryName();
-    $requestParameter = \Drupal::request()->get($queryName);
+
+    if(!empty($values[$this->getQueryName()])){
+      $requestParameter = $values[$this->getQueryName()];
+    }
+    else{
+      $requestParameter = \Drupal::request()->get($queryName);
+    }
+
+
+
+
+//    $requestParameter = \Drupal::request()->get($queryName);
     if(is_string($requestParameter)){
       $requestParameter = Json::decode($requestParameter) ?? $requestParameter;
     }
     if(!is_array($requestParameter)){
       $requestParameter = (!empty($requestParameter)) ? [$requestParameter] : [];
     }
+
     $route = \Drupal::routeMatch();
     $routeParameter = $route->getParameters()->get($queryName) ?? [];
     if(!is_array($routeParameter)) {

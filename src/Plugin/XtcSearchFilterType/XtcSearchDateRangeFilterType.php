@@ -30,7 +30,7 @@ class XtcSearchDateRangeFilterType extends XtcSearchRangeFilterType
     '12' => 'Décembre',
   ];
 
-  public function getRequest(){
+  public function getRequest($default = []){
     $value = $this->getDefault();
     $debDate = strtotime($value['day'].'-'.$value['month'].'-'.$value['year']);
     $format = 'd/m/Y';
@@ -109,7 +109,7 @@ class XtcSearchDateRangeFilterType extends XtcSearchRangeFilterType
     ];
   }
 
-  public function setDefault() {
+  public function setDefault($values = []) {
     $this->default = [
       'day' => \Drupal::request()->get('day') ?? date('d'),
       'month' => \Drupal::request()->get('month') ?? date('m'),

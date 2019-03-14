@@ -18,7 +18,7 @@ use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePlugin
 class XtcSearchCheckboxAndFilterType extends XtcSearchCheckboxFilterType
 {
 
-  public function getRequest(){
+  public function getRequest($default = []){
     $must = [];
     $values = [];
     if(!empty($value = $this->getDefault())) {

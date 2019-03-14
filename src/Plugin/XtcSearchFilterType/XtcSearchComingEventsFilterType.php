@@ -15,7 +15,7 @@ namespace Drupal\xtcsearch\Plugin\XtcSearchFilterType;
 class XtcSearchComingEventsFilterType extends XtcSearchDateRangeFilterType
 {
 
-  public function getRequest(){
+  public function getRequest($default = []){
     $value = $this->getDefault();
     $debDate = strtotime($value['day'].'-'.$value['month'].'-'.$value['year']);
     $finDate = strtotime('+1 year', $debDate);

@@ -92,7 +92,7 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
     return $string;
   }
 
-  public function getRequest(){
+  public function getRequest($default = []){
     $request = \Drupal::request();
     $must = [];
     if(!empty($request->get($this->getQueryName())) ) {
@@ -155,7 +155,7 @@ class XtcSearchFulltextFilterType extends XtcSearchFilterTypePluginBase
     return urlencode($value);
   }
 
-  public function setDefault() {
+  public function setDefault($values = []) {
     $this->default = urldecode(\Drupal::request()->get($this->getQueryName()));
   }
 

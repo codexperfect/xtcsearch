@@ -17,7 +17,7 @@ use Elastica\Aggregation\Range;
 class XtcSearchRangeSelectFilterType extends XtcSearchSelectFilterType
 {
 
-  public function getRequest() {
+  public function getRequest($default = []){
     if($value = $this->getDefault()){
       $options = $this->options()[$value];
       return [

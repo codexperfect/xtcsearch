@@ -213,7 +213,7 @@ class XtcSearchIterativeCheckboxFilterType extends XtcSearchFilterTypePluginBase
     }
   }
 
-  public function getRequest(){
+  public function getRequest($default = []){
     $must = [];
     $values = $this->getDefault();
     if(!empty($values) ){
@@ -265,7 +265,7 @@ class XtcSearchIterativeCheckboxFilterType extends XtcSearchFilterTypePluginBase
     return Json::encode($values);
   }
 
-  public function setDefault() {
+  public function setDefault($values = []) {
     $values = [];
     $request = \Drupal::request();
     if(!empty($request->get($this->getQueryName()))){

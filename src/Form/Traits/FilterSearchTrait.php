@@ -19,20 +19,23 @@ trait FilterSearchTrait
   protected function addAggregations() {
     foreach($this->filters as $name => $container) {
       $filter = $this->loadFilter($name);
-      $filter->setForm($this->form);
+      if(!empty($this->form)){
+        $filter->setForm($this->form);
+      }
       $filter->setSearchBuilder($this);
       $filter->addAggregation();
     }
   }
 
-  protected function getCriteria() {
+  protected function setCriteria() {
+    $values = $this->options ?? [];
     foreach($this->filters as $name => $container) {
       $filter = $this->loadFilter($name);
       if('exclude' == $filter->getPluginId()){
-        $this->musts_not[$filter->getQueryName()] = $filter->getRequest();
+        $this->musts_not[$filter->getQueryName()] = $filter->getRequest($values);
       }
       else{
-        $this->musts[$filter->getQueryName()] = $filter->getRequest();
+        $this->musts[$filter->getQueryName()] = $filter->getRequest($values);
       }
       $this->addCompletion($filter);
       $this->addSuggest($filter);

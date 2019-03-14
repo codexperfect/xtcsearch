@@ -36,7 +36,7 @@ class XtcSearchSelectFilterType extends XtcSearchFilterTypePluginBase
     ];
   }
 
-  public function setDefault() {
+  public function setDefault($values = []) {
     $value = Json::decode(\Drupal::request()->get($this->getQueryName()));
     if(is_array($value)){
       $value = $value[0];

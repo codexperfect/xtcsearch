@@ -18,7 +18,7 @@ use Drupal\xtcsearch\PluginManager\XtcSearchFilterType\XtcSearchFilterTypePlugin
 class XtcSearchExcludeFilterType extends XtcSearchFilterTypePluginBase
 {
 
-  public function getRequest(){
+  public function getRequest($default = []){
     $mustnot = [];
     if(!empty($value = $this->getDefault())) {
       $values = array_filter(array_values($value));
@@ -34,7 +34,7 @@ class XtcSearchExcludeFilterType extends XtcSearchFilterTypePluginBase
   public function getFilter(){
   }
 
-  public function setDefault() {
+  public function setDefault($values = []) {
     $value = \Drupal::request()->get($this->getQueryName());
     if(is_string($value)){
       $value = Json::decode($value) ?? $value;

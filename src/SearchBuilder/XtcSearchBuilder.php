@@ -8,7 +8,7 @@
 namespace Drupal\xtcsearch\SearchBuilder;
 
 
-use Drupal\xtc\XtendedContent\API\Config;
+use Drupal\xtc\XtendedContent\API\XtcForm;
 use Drupal\xtcsearch\Form\Traits\FilterSearchTrait;
 use Drupal\xtcsearch\Form\Traits\PaginationTrait;
 use Drupal\xtcsearch\Form\Traits\QueryTrait;
@@ -36,7 +36,7 @@ class XtcSearchBuilder
 
   public function __construct(XtcSearchFormBase $xtcSearchForm) {
     $this->form = $xtcSearchForm;
-    $this->definition = Config::loadXtcForm($xtcSearchForm->getSearchId());
+    $this->definition = XtcForm::load($xtcSearchForm->getSearchId());
     $this->init();
   }
 
@@ -48,12 +48,8 @@ class XtcSearchBuilder
   }
 
   public function triggerSearch(){
-    $this->getCriteria();
+    $this->setCriteria();
     $this->getResultSet();
-  }
-
-  public function getDocuments(){
-    return $this->resultSet->getDocuments();
   }
 
   protected function getTimeout(){

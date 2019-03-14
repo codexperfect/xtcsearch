@@ -15,7 +15,7 @@ namespace Drupal\xtcsearch\Plugin\XtcSearchFilterType;
 class XtcSearchThisMonthFilterType extends XtcSearchDateRangeFilterType
 {
 
-  public function getRequest(){
+  public function getRequest($default = []){
     $value = $this->getDefault();
     $debDate = strtotime('01'.'-'.$value['month'].'-'.$value['year']);
     $finDate = strtotime('+1 month', $debDate);

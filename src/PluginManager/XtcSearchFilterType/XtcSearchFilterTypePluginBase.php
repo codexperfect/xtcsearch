@@ -92,10 +92,10 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
     return $this->filter->getParams();
   }
 
-  public function getRequest(){
+  public function getRequest($default = []){
     $must = [];
     $values = [];
-    if(!empty($value = $this->getDefault())) {
+    if(!empty($value = $this->getDefault($default))) {
       $values = array_filter(array_values($value));
     }
     if(!empty($values) ){
@@ -146,14 +146,14 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
     return $this->options;
   }
 
-  public function getDefault() {
+  public function getDefault($values = []) {
     if(empty($this->default)){
-      $this->setDefault();
+      $this->setDefault($values);
     }
     return $this->default;
   }
 
-  public function setDefault() {
+  public function setDefault($values = []) {
     if(!empty(\Drupal::request()->get($this->getQueryName()))){
       $this->default = Json::decode(\Drupal::request()->get($this->getQueryName()))
                  ?? \Drupal::request()->get($this->getQueryName());
@@ -206,13 +206,13 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
    * @return \Elastica\Aggregation\Terms
    */
   public function initAggregation($name, $field, $size){
-    if(!empty($this->form)){
+//    if(!empty($this->form)){
       $terms = new Terms($name);
       $terms->setField($field);
       $terms->setSize($size);
 
       return $terms;
-    }
+//    }
   }
 
   public function addAggregation(){
@@ -225,10 +225,10 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
           }
         }
       }
-      if($this->searchBuilder instanceof XtcSearchBuilder){
+//      if($this->searchBuilder instanceof XtcSearchBuilder){
         $this->searchBuilder->getQuery()
              ->addAggregation($aggregations[0]);
-      }
+//      }
     }
   }
 
@@ -237,11 +237,11 @@ abstract class XtcSearchFilterTypePluginBase extends PluginBase implements XtcSe
     if(!empty($this->form)
        && $this->form instanceof XtcSearchFormBase
     ) {
-      $search = $this->form->getResultSet();
-      if(!empty($search)){
+      $resultSet = $this->form->getResultSet();
+      if(!empty($resultSet)){
         $name = $this->getAggregations()[0]['name'];
         try{
-          $agg = $search->getAggregation($name);
+          $agg = $resultSet->getAggregation($name);
         }
         catch(InvalidException $e){
         }

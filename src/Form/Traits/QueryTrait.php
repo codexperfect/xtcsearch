@@ -10,10 +10,11 @@ namespace Drupal\xtcsearch\Form\Traits;
 
 
 use Drupal\Core\Site\Settings;
-use Drupal\xtc\XtendedContent\API\Config;
+use Drupal\xtc\XtendedContent\API\XtcServer;
 use Elastica\Client;
 use Elastica\Index;
 use Elastica\Query;
+use Elastica\Response;
 use Elastica\ResultSet;
 use Elastica\Search;
 use Elastica\Type;
@@ -78,7 +79,7 @@ trait QueryTrait
 
   protected function initElastica() {
     $settings = Settings::get('xtc.serve_client')['xtc']['serve_client']['server'];
-    $server = Config::loadXtcServer($this->definition['server']);
+    $server = XtcServer::load($this->definition['server']);
     $env = $settings[$this->definition['server']]['env'] ?? $server['env'];
     $connection = [
       'host' => $server['connection'][$env]['host'],
@@ -185,13 +186,29 @@ trait QueryTrait
       $this->addAggregations();
       try{
         $this->resultSet = $this->search->search($this->query);
+        $this->results = [];
+      }
+      catch(\Exception $exception){
+        $msg = $exception->getMessage();
+        \Drupal::logger('xtc.elastica')->critical(
+          'Message: @message',
+          [
+            '@message' => $exception->getMessage(),
+          ]
+        );
+        \Drupal::messenger()->addError($msg);
       }
       finally{
-      }
-
-      if(!empty($this->resultSet)){
-        $this->paginationSet('total', $this->resultSet->getTotalHits());
-        $this->results = $this->resultSet->getDocuments();
+        if(empty($this->resultSet)){
+          $response = New Response('');
+          $result = [];
+          $this->resultSet = New ResultSet($response, $this->query, $result);
+          $this->results = $this->getDocuments();
+        }
+        else{
+          $this->paginationSet('total', $this->resultSet->getTotalHits());
+          $this->results = $this->getDocuments();
+        }
         $this->searched = true;
       }
     }
@@ -205,6 +222,16 @@ trait QueryTrait
       $sortArgs = [$this->definition['sort']['field'] => $this->definition['sort']['dir']];
       $this->query->setSort($sortArgs);
     }
+  }
+
+  /**
+   * @return array Documents \Elastica\Document
+   */
+  public function getDocuments(){
+    if(!empty($this->resultSet->getResults())){
+      return $this->resultSet->getDocuments();
+    }
+    return [];
   }
 
 }

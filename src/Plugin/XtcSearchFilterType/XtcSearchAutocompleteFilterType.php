@@ -28,7 +28,7 @@ class XtcSearchAutocompleteFilterType extends XtcSearchFilterTypePluginBase
     return $string;
   }
 
-  public function getRequest(){
+  public function getRequest($default = []){
     $must = [];
     return $must;
   }
@@ -54,7 +54,7 @@ class XtcSearchAutocompleteFilterType extends XtcSearchFilterTypePluginBase
     return [];
   }
 
-  public function setDefault() {
+  public function setDefault($values = []) {
     $this->default = urldecode(\Drupal::request()->get($this->getQueryName()));
   }
 

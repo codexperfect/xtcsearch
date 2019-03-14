@@ -10,7 +10,8 @@ namespace Drupal\xtcsearch\Controller;
 
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\xtc\XtendedContent\API\Config;
+use Drupal\xtc\XtendedContent\API\XtcAutocomplete;
+use Drupal\xtc\XtendedContent\API\XtcSearch;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class XtcSearchController extends ControllerBase
@@ -25,7 +26,7 @@ class XtcSearchController extends ControllerBase
    * @return array
    */
   public function search() {
-    $this->form = Config::getSearch('xtc_search');
+    $this->form = XtcSearch::get('xtc_search');
     return [
       '#theme' => 'xtc_search_form',
       '#response' => [
@@ -43,7 +44,7 @@ class XtcSearchController extends ControllerBase
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    */
   public function handleAutocomplete($searchId) {
-    $items = Config::getAutocomplete($searchId);
+    $items = XtcAutocomplete::get($searchId);
     return New JsonResponse($items);
   }
 
